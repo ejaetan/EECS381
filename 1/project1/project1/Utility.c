@@ -12,6 +12,9 @@
 #include "stdio.h"
 
 
+
+
+
 /* malloc might not able to service the request, it might return a null pointer.
  we will need an error handling */
 void* malloc_with_error_handling(size_t size) {

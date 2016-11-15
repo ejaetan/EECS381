@@ -5,6 +5,12 @@ Remove this comment and complete this file with all necessary code.
 #include "Ordered_container.h"
 #include "Utility.h"
 #include <stdlib.h>
+
+
+int g_Container_count = 0;		/* number of Ordered_containers currently allocated */
+int g_Container_items_in_use = 0;	/* number of Ordered_container items currently in use */
+int g_Container_items_allocated = 0;	/* number of Ordered_container items currently allocated */
+
 /* struct LL_Node structure declaration. This declaration is local to this file. 
 This is a two-way or doubly-linked list. Each node has a pointer to the previous 
 node and another pointer to the next node in the list. This means insertions or
@@ -42,6 +48,7 @@ struct Ordered_container* OC_create_container(OC_comp_fp_t f_ptr) {
     new_Container->size = 0;
     new_Container->comp_func = f_ptr;
     
+    g_Container_count++;
     return new_Container;
 }
 
@@ -52,12 +59,16 @@ void OC_destroy_container(struct Ordered_container* c_ptr) {
     OC_clear(c_ptr);
     free(c_ptr);
     c_ptr = NULL;
+    g_Container_count--;
 }
 
 
 /* Delete all the items in the container and initialize it.
  Caller is responsible for deleting any pointed-to data first. */
 void OC_clear(struct Ordered_container* c_ptr) {
+    int size = OC_get_size(c_ptr);
+    
+    
     struct LL_Node* current_node = c_ptr->first;
     while(current_node) {
         if (current_node->next) {
@@ -69,17 +80,30 @@ void OC_clear(struct Ordered_container* c_ptr) {
         }
         
     }
+    g_Container_items_in_use -= size;
+    g_Container_items_allocated -= size;
     c_ptr->size = 0;
     c_ptr->first = c_ptr->last = NULL;
 }
 
+/* Return the number of items currently stored in the container */
+int OC_get_size(const struct Ordered_container* c_ptr) {
+    return c_ptr->size;
+}
+
+/* Return non-zero (true) if the container is empty, zero (false) if the container is non-empty */
+int OC_empty(const struct Ordered_container* c_ptr) {
+    return (OC_get_size(c_ptr)) ? 0 : -1;
+}
 
 /*
  Functions for working with individual items in the container.
  */
 
 /* Get the data object pointer from an item. */
-void* OC_get_data_ptr(const void* item_ptr);
+void* OC_get_data_ptr(const void* item_ptr) {
+    return ((struct LL_Node*) item_ptr)->data_ptr;
+}
 
 
 /* Delete the specified item.
