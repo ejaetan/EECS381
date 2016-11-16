@@ -116,12 +116,12 @@ void* OC_get_data_ptr(const void* item_ptr) {
 
 
 int OC_equals_or_just_over(const struct Ordered_container* c_ptr, const void* data_ptr,
-                                       struct LL_Node** current_node);
+                           OC_comp_fp_t f_ptr, struct LL_Node** current_node);
 
 /* Search the list with a linear scan, stop scanning when data_ptr 'gone past' 
 where it should be */
 int OC_equals_or_just_over(const struct Ordered_container* c_ptr, const void* data_ptr,
-                                       struct LL_Node** current_node) {
+                           OC_comp_fp_t f_ptr,struct LL_Node** current_node) {
     
     int result = -1;
     while (*current_node && (result = c_ptr->comp_func(data_ptr, (*current_node)->data_ptr)) > 0 ){
@@ -150,7 +150,7 @@ int OC_insert(struct Ordered_container* c_ptr, const void* data_ptr) {
         } else {
             struct LL_Node* current_node = c_ptr->first;
             struct LL_Node* prev_node = NULL;
-            OC_equals_or_just_over(c_ptr, data_ptr, &current_node);
+            OC_equals_or_just_over(c_ptr, data_ptr, c_ptr->comp_func, &current_node);
             // if item is to be added as the first item on the list
             if (!current_node->prev) {
                 current_node->prev = c_ptr->first = new_node;
@@ -187,7 +187,7 @@ int OC_insert(struct Ordered_container* c_ptr, const void* data_ptr) {
  The pointed-to data will not be modified. */
 void* OC_find_item(const struct Ordered_container* c_ptr, const void* data_ptr) {
     struct LL_Node* current_node = c_ptr->first;
-    int found = OC_equals_or_just_over(c_ptr, data_ptr, &current_node);
+    int found = OC_equals_or_just_over(c_ptr, data_ptr, c_ptr->comp_func, &current_node);
     
     if (found == 0) {
         return current_node;
@@ -195,6 +195,29 @@ void* OC_find_item(const struct Ordered_container* c_ptr, const void* data_ptr) 
     return NULL;
 }
 
+/* typedef for a function used by OC_find_item_arg. The function returns negative, 0, or positive,
+ if the data pointed to by arg_ptr corresponds to a data object that should come before, is equal to, or comes after,
+ the data object pointed to by data_ptr. For example, arg_ptr could point to a datum with the same value
+ as a member of the sought-for data object. */
+typedef int (*OC_find_item_arg_fp_t) (const void* arg_ptr, const void* data_ptr);
+
+/* Return a pointer to the item that points to data that matches the supplied argument given by arg_ptr
+ according to the supplied function, which compares arg_ptr as the first argument with the data pointer
+ in each item. This function does not require that arg_ptr be of the same type as the data objects, and
+ so allows the container to be searched without creating a complete data object first.
+ NULL is returned if no matching item is found. If more than one matching item is present, it is
+ unspecified which one is returned. The comparison function must implement an ordering consistent
+ with the ordering produced by the comparison function specified when the container was created;
+ if not, the result is undefined. */
+void* OC_find_item_arg(const struct Ordered_container* c_ptr, const void* arg_ptr, OC_find_item_arg_fp_t fafp) {
+    struct LL_Node* current_node = c_ptr->first;
+    int found = OC_equals_or_just_over(c_ptr, arg_ptr, fafp, &current_node);
+    
+    if (found == 0) {
+        return current_node;
+    }
+    return NULL;
+}
 
 
 
