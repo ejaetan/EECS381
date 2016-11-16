@@ -108,7 +108,34 @@ void* OC_get_data_ptr(const void* item_ptr) {
 
 /* Delete the specified item.
  Caller is responsible for any deletion of the data pointed to by the item. */
-//void OC_delete_item(struct Ordered_container* c_ptr, void* item_ptr);
+void OC_delete_item(struct Ordered_container* c_ptr, void* item_ptr) {
+    struct LL_Node* found_item = OC_find_item(c_ptr, ((struct LL_Node*) item_ptr)->data_ptr );
+    int OC_size = OC_get_size(c_ptr);
+    if (found_item) {
+        // delete item is the first item on the list
+        if (OC_size > 1 && !(found_item->prev)) {
+            c_ptr->first = c_ptr->first->next;
+            c_ptr->first->prev = NULL;
+        // delete item is in the last item on the list
+        } else if (OC_size > 1 && !(found_item->next)) {
+            c_ptr->last = c_ptr->last->prev;
+            c_ptr->last->next = NULL;
+        // delete item is in the middle on the list
+        } else if (OC_size > 2) {
+            struct LL_Node *found_prev_node = NULL, *found_next_node = NULL;
+            found_item->prev = found_prev_node;
+            found_item->next = found_next_node;
+            found_prev_node->next = found_next_node;
+            found_next_node->prev = found_prev_node;
+        }
+        
+        free(found_item);
+        found_item = NULL;
+        c_ptr->size--;
+        g_Container_items_in_use--;
+        g_Container_items_allocated--;
+    }
+}
 
 /*
  Functions that search and insert into the container using the supplied comparison function.
