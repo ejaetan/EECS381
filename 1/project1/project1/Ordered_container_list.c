@@ -115,12 +115,12 @@ void* OC_get_data_ptr(const void* item_ptr) {
  */
 
 
-int OC_equals_or_just_over(struct Ordered_container* c_ptr, const void* data_ptr,
+int OC_equals_or_just_over(const struct Ordered_container* c_ptr, const void* data_ptr,
                                        struct LL_Node** current_node);
 
 /* Search the list with a linear scan, stop scanning when data_ptr 'gone past' 
 where it should be */
-int OC_equals_or_just_over(struct Ordered_container* c_ptr, const void* data_ptr,
+int OC_equals_or_just_over(const struct Ordered_container* c_ptr, const void* data_ptr,
                                        struct LL_Node** current_node) {
     
     int result = -1;
@@ -180,6 +180,20 @@ int OC_insert(struct Ordered_container* c_ptr, const void* data_ptr) {
     return 0;   // insert failed
 }
 
+/* Return a pointer to an item that points to data equal to the data object pointed to by data_ptr,
+ using the ordering function to do the comparison with data_ptr as the first argument.
+ The data_ptr object is assumed to be of the same type as the data objects pointed to by container items.
+ NULL is returned if no matching item is found.
+ The pointed-to data will not be modified. */
+void* OC_find_item(const struct Ordered_container* c_ptr, const void* data_ptr) {
+    struct LL_Node* current_node = c_ptr->first;
+    int found = OC_equals_or_just_over(c_ptr, data_ptr, &current_node);
+    
+    if (found == 0) {
+        return current_node;
+    }
+    return NULL;
+}
 
 
 
