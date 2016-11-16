@@ -108,7 +108,79 @@ void* OC_get_data_ptr(const void* item_ptr) {
 
 /* Delete the specified item.
  Caller is responsible for any deletion of the data pointed to by the item. */
-void OC_delete_item(struct Ordered_container* c_ptr, void* item_ptr);
+//void OC_delete_item(struct Ordered_container* c_ptr, void* item_ptr);
+
+/*
+ Functions that search and insert into the container using the supplied comparison function.
+ */
+
+
+int OC_equals_or_just_over(struct Ordered_container* c_ptr, const void* data_ptr,
+                                       struct LL_Node** current_node);
+
+/* Search the list with a linear scan, stop scanning when data_ptr 'gone past' 
+where it should be */
+int OC_equals_or_just_over(struct Ordered_container* c_ptr, const void* data_ptr,
+                                       struct LL_Node** current_node) {
+    
+    int result = -1;
+    while (*current_node && (result = c_ptr->comp_func(data_ptr, (*current_node)->data_ptr)) > 0 ){
+            *current_node = (*current_node)->next;
+    }
+    return result;
+}
+
+/* Create a new item for the specified data pointer and put it in the container in order.
+ If there is already an item in the container that compares equal to new item according to
+ the comparison function, the insertion will not take place and 0 is returned to indicate failure.
+ Otherwise, the insertion is done and non-zero is returned to show success.
+ This function will not modify the pointed-to data. */
+int OC_insert(struct Ordered_container* c_ptr, const void* data_ptr) {
+    if (c_ptr) {
+        int OC_size = OC_get_size(c_ptr);
+        struct LL_Node* new_node = (struct LL_Node*) malloc_with_error_handling(sizeof(struct LL_Node*));
+        new_node->data_ptr = (void*) data_ptr;
+        
+        // if OC has zero item
+        if (OC_size == 0) {
+            c_ptr->first = c_ptr->last = new_node;
+            c_ptr->first->prev = c_ptr->last->next = NULL;
+            
+            // if OC has > 0 item
+        } else {
+            struct LL_Node* current_node = c_ptr->first;
+            struct LL_Node* prev_node = NULL;
+            OC_equals_or_just_over(c_ptr, data_ptr, &current_node);
+            // if item is to be added as the first item on the list
+            if (!current_node->prev) {
+                current_node->prev = c_ptr->first = new_node;
+                c_ptr->first->next = current_node;
+                c_ptr->first->prev = NULL;
+                // if item is to be added as the last item on the list
+            } else if (!current_node) {
+                prev_node = c_ptr->last;
+                prev_node->next = c_ptr->last = new_node;
+                c_ptr->last->prev = prev_node;
+                c_ptr->last->next = NULL;
+                // if item is to be added in the middle of the list
+            } else {
+                prev_node = current_node->prev;
+                prev_node->next = new_node;
+                new_node->prev = prev_node;
+                new_node->next = current_node;
+                current_node->prev = new_node;
+            }
+        }
+        
+        g_Container_items_in_use++;
+        g_Container_items_allocated++;
+        c_ptr->size++;
+        return -1; // insert success
+    }
+    return 0;   // insert failed
+}
+
+
 
 
 
