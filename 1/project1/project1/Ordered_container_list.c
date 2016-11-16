@@ -67,8 +67,7 @@ void OC_destroy_container(struct Ordered_container* c_ptr) {
  Caller is responsible for deleting any pointed-to data first. */
 void OC_clear(struct Ordered_container* c_ptr) {
     int size = OC_get_size(c_ptr);
-    
-    
+
     struct LL_Node* current_node = c_ptr->first;
     while(current_node) {
         if (current_node->next) {
@@ -216,10 +215,7 @@ void* OC_find_item(const struct Ordered_container* c_ptr, const void* data_ptr) 
     struct LL_Node* current_node = c_ptr->first;
     int found = OC_equals_or_just_over(c_ptr, data_ptr, c_ptr->comp_func, &current_node);
     
-    if (found == 0) {
-        return current_node;
-    }
-    return NULL;
+    return (found == 0) ? current_node : NULL;
 }
 
 /* typedef for a function used by OC_find_item_arg. The function returns negative, 0, or positive,
@@ -240,10 +236,7 @@ void* OC_find_item_arg(const struct Ordered_container* c_ptr, const void* arg_pt
     struct LL_Node* current_node = c_ptr->first;
     int found = OC_equals_or_just_over(c_ptr, arg_ptr, fafp, &current_node);
     
-    if (found == 0) {
-        return current_node;
-    }
-    return NULL;
+    return (found == 0) ? current_node : NULL;
 }
 
 
@@ -266,5 +259,64 @@ void OC_apply(const struct Ordered_container* c_ptr, OC_apply_fp_t afp) {
         current_node = current_node->next;
     }
     
+}
+
+/* Type of a function used by OC_apply_if.
+ An apply_if function takes a data pointer as an argument, and returns zero or non-zero.
+ It is allowed to modify the data object, but if the ordering information is changed,
+ the effects of attempting to search the container afterwards with OC_find are undefined. */
+typedef int (*OC_apply_if_fp_t) (void* data_ptr);
+
+/* Apply the supplied function to the data pointer in each item in the container.
+ If the function returns non-zero, the iteration is terminated, and that value
+ returned. Otherwise, zero is returned. The contents of the container cannot be modified. */
+int OC_apply_if(const struct Ordered_container* c_ptr, OC_apply_if_fp_t afp) {
+    struct LL_Node* current_node = c_ptr->first;
+    int result = -1;
+    while(current_node && ((result = afp(current_node->data_ptr) == 0))) {
+        current_node = current_node->next;
+    }
+    return result;
+}
+
+/* Type of a function used by OC_apply_arg.
+ An OC_apply_arg function takes a data pointer as the first argument,
+ a supplied argument pointer as a second argument, and returns void.
+ It is allowed to modify the pointed-to argument, or the data object,
+ but if the ordering information is changed, the effects of attempting to search
+ the container afterwards with OC_find are undefined. */
+typedef void (*OC_apply_arg_fp_t) (void* data_ptr, void* arg_ptr);
+
+/* Apply the supplied function to the data pointer in each item in the container;
+ the function takes a second argument, which is the supplied void pointer.
+ The contents of the container cannot be modified. */
+void OC_apply_arg(const struct Ordered_container* c_ptr, OC_apply_arg_fp_t afp, void* arg_ptr) {
+    struct LL_Node* current_node = c_ptr->first;
+    
+    while(current_node) {
+        afp(current_node->data_ptr, arg_ptr);
+        current_node = current_node->next;
+    }
+}
+
+/* Type of a function used by OC_apply_if_arg.
+ An OC_apply_arg function takes a data pointer as an argument,
+ a supplied argument pointer as a second argument, and returns an zero or non-zero.
+ It is allowed to modify the pointed-to argument, or the data object,
+ but if the ordering information is changed, the effects of attempting to search
+ the container afterwards with OC_find are undefined. */
+typedef int (*OC_apply_if_arg_fp_t) (void* data_ptr, void* arg_ptr);
+
+/* Apply the supplied function to the data pointer in each item in the container;
+ the function takes a second argument, which is the supplied void pointer.
+ If the function returns non-zero, the iteration is terminated, and that value
+ returned. Otherwise, zero is returned. The contents of the container cannot be modified */
+int OC_apply_if_arg(const struct Ordered_container* c_ptr, OC_apply_if_arg_fp_t afp, void* arg_ptr) {
+    struct LL_Node* current_node = c_ptr->first;
+    int result = -1;
+    while(current_node && ((result = afp(current_node->data_ptr, arg_ptr) == 0))) {
+        current_node = current_node->next;
+    }
+    return result;
 }
 
