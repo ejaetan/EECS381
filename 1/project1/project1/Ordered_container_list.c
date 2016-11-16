@@ -160,7 +160,7 @@ int OC_equals_or_just_over(const struct Ordered_container* c_ptr, const void* da
  If there is already an item in the container that compares equal to new item according to
  the comparison function, the insertion will not take place and 0 is returned to indicate failure.
  Otherwise, the insertion is done and non-zero is returned to show success.
- This function will not modify the pointed-to data. */
+ This function will not modify the pointed-to data.*/
 int OC_insert(struct Ordered_container* c_ptr, const void* data_ptr) {
     if (c_ptr) {
         int OC_size = OC_get_size(c_ptr);
@@ -205,6 +205,8 @@ int OC_insert(struct Ordered_container* c_ptr, const void* data_ptr) {
     }
     return 0;   // insert failed
 }
+
+
 
 /* Return a pointer to an item that points to data equal to the data object pointed to by data_ptr,
  using the ordering function to do the comparison with data_ptr as the first argument.
@@ -320,3 +322,16 @@ int OC_apply_if_arg(const struct Ordered_container* c_ptr, OC_apply_if_arg_fp_t 
     return result;
 }
 
+
+/* helper function */
+void print_container(const struct Ordered_container* c_ptr);
+
+
+void print_container(const struct Ordered_container* c_ptr) {
+    struct LL_Node* current_node = c_ptr->first;
+    while(current_node) {
+        printf("%d\t", *(int*)(current_node->data_ptr));
+        current_node = current_node->next;
+    }
+    printf("\n");
+}
