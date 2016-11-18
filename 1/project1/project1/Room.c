@@ -1,8 +1,10 @@
 #include "Ordered_container.h"
 #include "Room.h"
+#include "Meeting.h"
 #include "Utility.h"
 
 /* Helper function prototype*/
+int convert_time(int a, int b);
 int cmp_meeting_time(int a, int b);
 
 /* a Room contains a container of meetings and a room number */
@@ -22,6 +24,11 @@ struct Room* create_Room(int number) {
     return new_Room;
 }
 
+/* Destroy a Room object.
+ This is the only function that frees the memory for a Room
+ and the contained data. The Meetings are destroyed before the
+ Meeting list is emptied. */
+void destroy_Room(struct Room* room_ptr);
 
 /* Return the room number. */
 int get_Room_number(const struct Room* room_ptr) {
@@ -49,6 +56,8 @@ const struct Ordered_container* get_Room_Meetings(const struct Room* room_ptr);
 void print_Room(const struct Room* room_ptr);
 
 /* Helper function */
+int convert_time(int a, int b) ;
+
 int cmp_meeting_time(int a, int b) {
     if (a > b) return 1;
     if (a < b) return -1;
