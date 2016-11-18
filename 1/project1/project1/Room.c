@@ -5,7 +5,8 @@
 
 /* Helper function prototype*/
 int convert_time(int a);
-int cmp_meeting_time(int a, int b);
+int cmp_meeting_time(struct Meeting* meeting_ptr1, struct Meeting* meeting_ptr2);
+int cmp_meeting_time_arg(int* given_time, struct Meeting* meeting_ptr);
 
 /* a Room contains a container of meetings and a room number */
 struct Room {
@@ -37,7 +38,7 @@ int get_Room_number(const struct Room* room_ptr) {
 
 /* Add the meeting to the room, return non-zero if a meeting already at that time, 0 if OK. */
 int add_Room_Meeting(struct Room* room_ptr, const struct Meeting* meeting_ptr) {
-    void * found_ptr = OC_find_item(room_ptr->meetings, meeting_ptr);
+    void *found_ptr = OC_find_item(room_ptr->meetings, meeting_ptr);
     
     if (!found_ptr) {
         OC_insert(room_ptr->meetings, meeting_ptr);
@@ -47,7 +48,10 @@ int add_Room_Meeting(struct Room* room_ptr, const struct Meeting* meeting_ptr) {
 }
 
 /* Return a pointer to the meeting at the specified time, NULL if not present. */
-struct Meeting* find_Room_Meeting(const struct Room* room_ptr, int time);
+struct Meeting* find_Room_Meeting(const struct Room* room_ptr, int time) {
+    void *found_ptr = OC_find_item_arg(room_ptr->meetings, &time, (OC_find_item_arg_fp_t) cmp_meeting_time_arg);
+    return found_ptr ? (struct Meeting*)OC_get_data_ptr(found_ptr) : NULL;
+}
 
 /* Remove the supplied meeting from the room; return non-zero if not there; 0 if OK.
  The meeting is not destroyed because we may need to place it into another room. */
@@ -71,8 +75,10 @@ int convert_time(int a) {
     return a;
 }
 
-int cmp_meeting_time(int a, int b) {
-    if (a > b) return 1;
-    if (a < b) return -1;
-    return 0;
+int cmp_meeting_time(struct Meeting* meeting_ptr1, struct Meeting* meeting_ptr2) {
+    return convert_time(get_Meeting_time(meeting_ptr1)) - convert_time(get_Meeting_time(meeting_ptr2));
+}
+
+int cmp_meeting_time_arg(int* given_time, struct Meeting* meeting_ptr) {
+    return convert_time(*(int*)given_time) - convert_time(get_Meeting_time(meeting_ptr));
 }

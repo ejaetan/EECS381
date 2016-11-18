@@ -28,4 +28,6 @@ int main() {
     printf("%d\n", add_Room_Meeting(room1, meeting1));
     printf("%d\n", get_Room_number(room1));
     
+    struct Meeting * found_meeting = find_Room_Meeting(room1, 12);
+    printf("%d\n", get_Meeting_time(found_meeting));
 }

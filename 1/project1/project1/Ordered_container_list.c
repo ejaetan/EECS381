@@ -151,7 +151,7 @@ int OC_equals_or_just_over(const struct Ordered_container* c_ptr, const void* da
                            OC_comp_fp_t f_ptr,struct LL_Node** current_node) {
     
     int result = -1;
-    while (*current_node && (result = c_ptr->comp_func(data_ptr, (*current_node)->data_ptr)) > 0 ){
+    while (*current_node && (result = f_ptr(data_ptr, (*current_node)->data_ptr)) > 0 ){
             *current_node = (*current_node)->next;
     }
     return result;
