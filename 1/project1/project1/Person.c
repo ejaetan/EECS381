@@ -19,6 +19,10 @@ struct Person* create_Person(const char* firstname, const char* lastname, const 
     new_person->lastname = (char*) malloc_with_error_handling(sizeof(strlen(lastname) + 1));
     new_person->phoneno = (char*) malloc_with_error_handling(sizeof(strlen(phoneno) + 1));
     
+    new_person->firstname = firstname;
+    new_person->lastname = lastname;
+    new_person->phoneno = phoneno;
+    
     g_string_memory += strlen(firstname) + strlen(lastname) + strlen(phoneno) + 3;
     return new_person;
     
@@ -28,17 +32,16 @@ struct Person* create_Person(const char* firstname, const char* lastname, const 
  This is the only function that frees the memory for a Person
  and the contained data. */
 void destroy_Person(struct Person* person_ptr) {
-    g_string_memory -= strlen(person_ptr->firstname) +
+    g_string_memory -= (strlen(person_ptr->firstname) +
                        strlen(person_ptr->lastname) +
-                       strlen(person_ptr->phoneno) + 3;
-    
-    free(person_ptr->firstname);
-    free(person_ptr->lastname);
-    free(person_ptr->phoneno);
-    free(person_ptr)
+                       strlen(person_ptr->phoneno) + 3);
     person_ptr->firstname = NULL;
     person_ptr->lastname = NULL;
     person_ptr->phoneno = NULL;
+    free(person_ptr->firstname);
+    free(person_ptr->lastname);
+    free(person_ptr->phoneno);
+    free(person_ptr);
     person_ptr = NULL;
     
 }
@@ -50,5 +53,5 @@ const char* get_Person_lastname(const struct Person* person_ptr) {
 
 /* Print a Person data item to standard output with a final \n character. */
 void print_Person(const struct Person* person_ptr) {
-    printf("%s\t%s\t%s\t", person_ptr->firstname, person_ptr->lastname, person_ptr->phoneno);
+    printf("%s\t%s\t%s\t\n", person_ptr->firstname, person_ptr->lastname, person_ptr->phoneno);
 }

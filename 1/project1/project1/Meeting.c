@@ -39,7 +39,6 @@ void destroy_Meeting(struct Meeting* meeting_ptr) {
     g_string_memory -= (strlen(meeting_ptr->topic) + 1);
     
     OC_destroy_container(meeting_ptr->participants);
-    
     meeting_ptr->topic = NULL;
     free(meeting_ptr->topic);
     meeting_ptr = NULL;
