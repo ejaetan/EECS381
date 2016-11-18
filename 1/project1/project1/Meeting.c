@@ -24,7 +24,7 @@ struct Meeting* create_Meeting(int time, const char* topic) {
     new_meeting->participants = OC_create_container((OC_comp_fp_t) cmp_person_lastname);
     new_meeting->time = time;
     new_meeting->topic = (char*) malloc_with_error_handling(sizeof(strlen(topic) + 1));
-    new_meeting->topic = strcpy(new_meeting->topic, topic);
+    strcpy(new_meeting->topic, topic);
     g_Meeting_memory++;
     g_string_memory += strlen(topic) + 1;
     return  new_meeting;
