@@ -30,4 +30,7 @@ int main() {
     
     struct Meeting * found_meeting = find_Room_Meeting(room1, 12);
     printf("%d\n", get_Meeting_time(found_meeting));
+    
+    printf("%d\n", remove_Room_Meeting(room1, meeting1));
+    printf("%d\n", remove_Room_Meeting(room1, meeting1));
 }

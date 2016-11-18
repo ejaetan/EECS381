@@ -38,9 +38,9 @@ int get_Room_number(const struct Room* room_ptr) {
 
 /* Add the meeting to the room, return non-zero if a meeting already at that time, 0 if OK. */
 int add_Room_Meeting(struct Room* room_ptr, const struct Meeting* meeting_ptr) {
-    void *found_ptr = OC_find_item(room_ptr->meetings, meeting_ptr);
+    void *found_item_ptr = OC_find_item(room_ptr->meetings, meeting_ptr);
     
-    if (!found_ptr) {
+    if (!found_item_ptr) {
         OC_insert(room_ptr->meetings, meeting_ptr);
         return 0;
     }
@@ -49,13 +49,21 @@ int add_Room_Meeting(struct Room* room_ptr, const struct Meeting* meeting_ptr) {
 
 /* Return a pointer to the meeting at the specified time, NULL if not present. */
 struct Meeting* find_Room_Meeting(const struct Room* room_ptr, int time) {
-    void *found_ptr = OC_find_item_arg(room_ptr->meetings, &time, (OC_find_item_arg_fp_t) cmp_meeting_time_arg);
-    return found_ptr ? (struct Meeting*)OC_get_data_ptr(found_ptr) : NULL;
+    void *found_item_ptr = OC_find_item_arg(room_ptr->meetings, &time, (OC_find_item_arg_fp_t) cmp_meeting_time_arg);
+    return found_item_ptr ? (struct Meeting*)OC_get_data_ptr(found_item_ptr) : NULL;
 }
 
 /* Remove the supplied meeting from the room; return non-zero if not there; 0 if OK.
  The meeting is not destroyed because we may need to place it into another room. */
-int remove_Room_Meeting(struct Room* room_ptr, const struct Meeting* meeting_ptr);
+int remove_Room_Meeting(struct Room* room_ptr, const struct Meeting* meeting_ptr) {
+    void *found_item_ptr = OC_find_item(room_ptr->meetings, meeting_ptr);
+    
+    if (found_item_ptr) {
+        OC_delete_item(room_ptr->meetings, (void*) meeting_ptr);
+        return 0;
+    }
+    return -1;
+}
 
 /* Clear and destroy the Meetings in a Room.
  This function destroys each meeting and leaves the Room empty of meetings. */
