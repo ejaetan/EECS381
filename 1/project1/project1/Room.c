@@ -4,7 +4,7 @@
 #include "Utility.h"
 
 /* Helper function prototype*/
-int convert_time(int a, int b);
+int convert_time(int a);
 int cmp_meeting_time(int a, int b);
 
 /* a Room contains a container of meetings and a room number */
@@ -56,7 +56,12 @@ const struct Ordered_container* get_Room_Meetings(const struct Room* room_ptr);
 void print_Room(const struct Room* room_ptr);
 
 /* Helper function */
-int convert_time(int a, int b) ;
+int convert_time(int a) {
+    if (a < 9) {
+        a += 12;
+    }
+    return a;
+}
 
 int cmp_meeting_time(int a, int b) {
     if (a > b) return 1;

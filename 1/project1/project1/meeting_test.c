@@ -37,5 +37,7 @@ int main() {
     
     destroy_Meeting(meeting1);
     print_Meeting(meeting1);
+    
+    
 }
 

@@ -40,10 +40,11 @@ void destroy_Meeting(struct Meeting* meeting_ptr) {
     g_string_memory -= (strlen(meeting_ptr->topic) + 1);
     
     OC_destroy_container(meeting_ptr->participants);
-    meeting_ptr->topic = NULL;
+    
     free(meeting_ptr->topic);
-    meeting_ptr = NULL;
+    meeting_ptr->topic = NULL;
     free(meeting_ptr);
+    meeting_ptr = NULL;
     
 }
 
@@ -86,17 +87,14 @@ int remove_Meeting_participant(struct Meeting* meeting_ptr, const struct Person*
 
 /* Print the data in a struct Meeting. The time is expressed in 12-hr form with no AM/PM.*/
 void print_Meeting(const struct Meeting* meeting_ptr) {
-    if (meeting_ptr) {
-        printf("Meeting time: %d, Topic: %s\n", meeting_ptr->time, meeting_ptr->topic);
-        if (OC_empty(meeting_ptr->participants)) {
-            printf("Participants: None\n");
-        } else {
-            printf("Participants:\n");
-            OC_apply(meeting_ptr->participants, (OC_apply_fp_t) print_Person);
-        }
+    printf("Meeting time: %d, Topic: %s\n", meeting_ptr->time, meeting_ptr->topic);
+    if (OC_empty(meeting_ptr->participants)) {
+        printf("Participants: None\n");
     } else {
-        printf("meeting not exist");
+        printf("Participants:\n");
+        OC_apply(meeting_ptr->participants, (OC_apply_fp_t) print_Person);
     }
+
     
     
 }
