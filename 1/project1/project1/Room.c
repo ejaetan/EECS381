@@ -36,7 +36,15 @@ int get_Room_number(const struct Room* room_ptr) {
 }
 
 /* Add the meeting to the room, return non-zero if a meeting already at that time, 0 if OK. */
-int add_Room_Meeting(struct Room* room_ptr, const struct Meeting* meeting_ptr);
+int add_Room_Meeting(struct Room* room_ptr, const struct Meeting* meeting_ptr) {
+    void * found_ptr = OC_find_item(room_ptr->meetings, meeting_ptr);
+    
+    if (!found_ptr) {
+        OC_insert(room_ptr->meetings, meeting_ptr);
+        return 0;
+    }
+    return -1;
+}
 
 /* Return a pointer to the meeting at the specified time, NULL if not present. */
 struct Meeting* find_Room_Meeting(const struct Room* room_ptr, int time);

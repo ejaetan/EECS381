@@ -19,9 +19,9 @@ struct Person* create_Person(const char* firstname, const char* lastname, const 
     new_person->lastname = (char*) malloc_with_error_handling(sizeof(strlen(lastname) + 1));
     new_person->phoneno = (char*) malloc_with_error_handling(sizeof(strlen(phoneno) + 1));
     
-    new_person->firstname = firstname;
-    new_person->lastname = lastname;
-    new_person->phoneno = phoneno;
+    new_person->firstname = strcpy(new_person->firstname, firstname);
+    new_person->lastname =  strcpy(new_person->lastname, lastname);
+    new_person->phoneno =  strcpy(new_person->phoneno, phoneno);
     
     g_string_memory += strlen(firstname) + strlen(lastname) + strlen(phoneno) + 3;
     return new_person;
@@ -35,12 +35,13 @@ void destroy_Person(struct Person* person_ptr) {
     g_string_memory -= (strlen(person_ptr->firstname) +
                        strlen(person_ptr->lastname) +
                        strlen(person_ptr->phoneno) + 3);
-    person_ptr->firstname = NULL;
-    person_ptr->lastname = NULL;
-    person_ptr->phoneno = NULL;
+    
     free(person_ptr->firstname);
     free(person_ptr->lastname);
     free(person_ptr->phoneno);
+    person_ptr->firstname = NULL;
+    person_ptr->lastname = NULL;
+    person_ptr->phoneno = NULL;
     free(person_ptr);
     person_ptr = NULL;
     
