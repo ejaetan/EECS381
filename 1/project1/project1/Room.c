@@ -67,13 +67,25 @@ int remove_Room_Meeting(struct Room* room_ptr, const struct Meeting* meeting_ptr
 
 /* Clear and destroy the Meetings in a Room.
  This function destroys each meeting and leaves the Room empty of meetings. */
-void clear_Room(struct Room* room_ptr);
+void clear_Room(struct Room* room_ptr) {
+    OC_apply(room_ptr->meetings, (OC_apply_fp_t) destroy_Meeting);
+    OC_clear(room_ptr->meetings);
+}
 
 /* Return a pointer to the const container of meetings for read-only iterations over the meetings. */
 const struct Ordered_container* get_Room_Meetings(const struct Room* room_ptr);
 
 /* Print the data in a struct Room. */
-void print_Room(const struct Room* room_ptr);
+void print_Room(const struct Room* room_ptr) {
+    printf("--- Room %d ---\n", room_ptr->number);
+    if (!OC_empty(room_ptr->meetings)) {
+        OC_apply(room_ptr->meetings, (OC_apply_fp_t) print_Meeting);
+    } else {
+        printf("No meetings are scheduled\n");
+    }
+    
+    
+}
 
 /* Helper function */
 int convert_time(int a) {
