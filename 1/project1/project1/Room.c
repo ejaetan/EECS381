@@ -2,6 +2,7 @@
 #include "Room.h"
 #include "Meeting.h"
 #include "Utility.h"
+#include <stdlib.h>
 
 /* Helper function prototype*/
 int convert_time(int a);
@@ -29,7 +30,11 @@ struct Room* create_Room(int number) {
  This is the only function that frees the memory for a Room
  and the contained data. The Meetings are destroyed before the
  Meeting list is emptied. */
-void destroy_Room(struct Room* room_ptr);
+void destroy_Room(struct Room* room_ptr) {
+    clear_Room(room_ptr);
+    free(room_ptr);
+    room_ptr = NULL;
+}
 
 /* Return the room number. */
 int get_Room_number(const struct Room* room_ptr) {
