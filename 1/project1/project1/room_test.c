@@ -10,7 +10,6 @@
 #include "Ordered_container.h"
 #include "Room.h"
 #include "Meeting.h"
-#include "Person.h"
 #include "Utility.h"
 
 int main() {

@@ -1,6 +1,5 @@
 #include "Ordered_container.h"
 #include "Meeting.h"
-#include "Person.h"
 #include "Utility.h"
 #include <stdlib.h>
 /* a Meeting contains a time, a topic, and a container of participants */
@@ -13,17 +12,14 @@ struct Meeting {
 /* global variable defintion for this module */
 int g_Meeting_memory = 0;			/* number of meeting structs currently allocated */
 
-/* Helper function prototype */
-int cmp_person_lastname(struct Person* person1, struct Person* person2);
-
 /* Create a Meeting object.
  This is the only function that allocates memory for a Meeting
  and the contained data. The supplied time is assumed to be in 12-hr form. */
 struct Meeting* create_Meeting(int time, const char* topic) {
-    struct Meeting* new_meeting = (struct Meeting*) malloc_with_error_handling(sizeof(struct Meeting));
+    struct Meeting* new_meeting = malloc_with_error_handling(sizeof(struct Meeting));
     new_meeting->participants = OC_create_container((OC_comp_fp_t) cmp_person_lastname);
     new_meeting->time = time;
-    new_meeting->topic = (char*) malloc_with_error_handling(sizeof(strlen(topic) + 1));
+    new_meeting->topic = malloc_with_error_handling(sizeof(strlen(topic) + 1));
     strcpy(new_meeting->topic, topic);
     g_Meeting_memory++;
     g_string_memory += strlen(topic) + 1;
@@ -100,9 +96,6 @@ void print_Meeting(const struct Meeting* meeting_ptr) {
 }
 
 
-/* Helper function */
-int cmp_person_lastname(struct Person* person1, struct Person* person2) {
-    return strcmp(get_Person_lastname(person1), get_Person_lastname(person2));
-}
+
 
 

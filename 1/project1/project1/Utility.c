@@ -7,9 +7,8 @@
 //
 
 #include "Utility.h"
-#include <string.h>
+
 #include <stdlib.h>
-#include <stdio.h>
 
 
 int g_string_memory = 0;
@@ -27,4 +26,9 @@ void* malloc_with_error_handling(size_t size) {
     
     return new_ptr;
     
+}
+
+/* derived at Meeting.c as helper function */
+int cmp_person_lastname(struct Person* person1, struct Person* person2) {
+    return strcmp(get_Person_lastname(person1), get_Person_lastname(person2));
 }

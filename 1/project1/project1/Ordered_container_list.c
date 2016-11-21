@@ -42,7 +42,7 @@ struct Ordered_container {
 /* Create an empty container using the supplied comparison function, 
 and return the pointer to it. */
 struct Ordered_container* OC_create_container(OC_comp_fp_t f_ptr) {
-    struct Ordered_container* new_Container = (struct Ordered_container*) malloc_with_error_handling(sizeof(struct Ordered_container));
+    struct Ordered_container* new_Container = malloc_with_error_handling(sizeof(struct Ordered_container));
     new_Container->first = new_Container->last = NULL;
     new_Container->size = 0;
     new_Container->comp_func = f_ptr;
@@ -55,33 +55,39 @@ struct Ordered_container* OC_create_container(OC_comp_fp_t f_ptr) {
  deleting all pointed-to data before calling this function.
  After this call, the container pointer value must not be used again. */
 void OC_destroy_container(struct Ordered_container* c_ptr) {
-    OC_clear(c_ptr);
-    free(c_ptr);
-    c_ptr = NULL;
-    g_Container_count--;
+    if (c_ptr) {
+        OC_clear(c_ptr);
+        free(c_ptr);
+        c_ptr = NULL;
+        g_Container_count--;
+    }
+    
 }
 
 
 /* Delete all the items in the container and initialize it.
  Caller is responsible for deleting any pointed-to data first. */
 void OC_clear(struct Ordered_container* c_ptr) {
-    int size = OC_get_size(c_ptr);
-
-    struct LL_Node* current_node = c_ptr->first;
-    while(current_node) {
-        if (current_node->next) {
-            current_node = current_node->next;
-            current_node->prev = NULL;
-        } else {
-            free(current_node);
-            current_node = NULL;
-        }
+    if (c_ptr) {
+        int size = OC_get_size(c_ptr);
         
+        struct LL_Node* current_node = c_ptr->first;
+        while(current_node) {
+            if (current_node->next) {
+                current_node = current_node->next;
+                current_node->prev = NULL;
+            } else {
+                free(current_node);
+                current_node = NULL;
+            }
+            
+        }
+        g_Container_items_in_use -= size;
+        g_Container_items_allocated -= size;
+        c_ptr->size = 0;
+        c_ptr->first = c_ptr->last = NULL;
     }
-    g_Container_items_in_use -= size;
-    g_Container_items_allocated -= size;
-    c_ptr->size = 0;
-    c_ptr->first = c_ptr->last = NULL;
+    
 }
 
 /* Return the number of items currently stored in the container */
@@ -107,34 +113,37 @@ void* OC_get_data_ptr(const void* item_ptr) {
 /* Delete the specified item.
  Caller is responsible for any deletion of the data pointed to by the item. */
 void OC_delete_item(struct Ordered_container* c_ptr, void* item_ptr) {
-    struct LL_Node* found_item = OC_find_item(c_ptr, (struct LL_Node*) item_ptr );
-    int OC_size = OC_get_size(c_ptr);
-    if (found_item) {
-        if (OC_size == 1) {
-            c_ptr->first = c_ptr->last = NULL;
-        // delete item is the first item on the list
-        } else if (OC_size > 1 && !(found_item->prev)) {
-            c_ptr->first = c_ptr->first->next;
-            c_ptr->first->prev = NULL;
-        // delete item is in the last item on the list
-        } else if (OC_size > 1 && !(found_item->next)) {
-            c_ptr->last = c_ptr->last->prev;
-            c_ptr->last->next = NULL;
-        // delete item is in the middle on the list
-        } else if (OC_size > 2) {
-            struct LL_Node *found_prev_node = NULL, *found_next_node = NULL;
-            found_prev_node = found_item->prev;
-            found_next_node = found_item->next;
-            found_prev_node->next = found_next_node;
-            found_next_node->prev = found_prev_node;
+    if (c_ptr) {
+        struct LL_Node* found_item = OC_find_item(c_ptr, (struct LL_Node*) item_ptr );
+        int OC_size = OC_get_size(c_ptr);
+        if (found_item) {
+            if (OC_size == 1) {
+                c_ptr->first = c_ptr->last = NULL;
+                // delete item is the first item on the list
+            } else if (OC_size > 1 && !(found_item->prev)) {
+                c_ptr->first = c_ptr->first->next;
+                c_ptr->first->prev = NULL;
+                // delete item is in the last item on the list
+            } else if (OC_size > 1 && !(found_item->next)) {
+                c_ptr->last = c_ptr->last->prev;
+                c_ptr->last->next = NULL;
+                // delete item is in the middle on the list
+            } else if (OC_size > 2) {
+                struct LL_Node *found_prev_node = NULL, *found_next_node = NULL;
+                found_prev_node = found_item->prev;
+                found_next_node = found_item->next;
+                found_prev_node->next = found_next_node;
+                found_next_node->prev = found_prev_node;
+            }
+            
+            free(found_item);
+            found_item = NULL;
+            c_ptr->size--;
+            g_Container_items_in_use--;
+            g_Container_items_allocated--;
         }
-        
-        free(found_item);
-        found_item = NULL;
-        c_ptr->size--;
-        g_Container_items_in_use--;
-        g_Container_items_allocated--;
     }
+    
 }
 
 /*
@@ -165,7 +174,7 @@ int OC_equals_or_just_over(const struct Ordered_container* c_ptr, const void* da
 int OC_insert(struct Ordered_container* c_ptr, const void* data_ptr) {
     if (c_ptr) {
         
-        struct LL_Node* new_node = (struct LL_Node*) malloc_with_error_handling(sizeof(struct LL_Node));
+        struct LL_Node* new_node = malloc_with_error_handling(sizeof(struct LL_Node));
         new_node->data_ptr = (void*) data_ptr;
         
         // if OC has zero item

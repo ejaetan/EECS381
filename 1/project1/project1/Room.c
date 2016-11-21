@@ -20,7 +20,7 @@ struct Room {
  This is the only function that allocates memory for a Room
  and the contained data. */
 struct Room* create_Room(int number) {
-    struct Room* new_Room = (struct Room*)malloc_with_error_handling(sizeof(struct Room));
+    struct Room* new_Room = malloc_with_error_handling(sizeof(struct Room));
     new_Room->meetings = OC_create_container((OC_comp_fp_t) cmp_meeting_time);
     new_Room->number = number;
     return new_Room;

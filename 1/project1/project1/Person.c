@@ -14,10 +14,10 @@ struct Person {
  This is the only function that allocates dynamic memory for a Person
  and the contained data. */
 struct Person* create_Person(const char* firstname, const char* lastname, const char* phoneno) {
-    struct Person* new_person = (struct Person*) malloc_with_error_handling(sizeof(struct Person));
-    new_person->firstname = (char*) malloc_with_error_handling(sizeof(strlen(firstname) + 1));
-    new_person->lastname = (char*) malloc_with_error_handling(sizeof(strlen(lastname) + 1));
-    new_person->phoneno = (char*) malloc_with_error_handling(sizeof(strlen(phoneno) + 1));
+    struct Person* new_person = malloc_with_error_handling(sizeof(struct Person));
+    new_person->firstname = malloc_with_error_handling(sizeof(strlen(firstname) + 1));
+    new_person->lastname = malloc_with_error_handling(sizeof(strlen(lastname) + 1));
+    new_person->phoneno = malloc_with_error_handling(sizeof(strlen(phoneno) + 1));
     
     strcpy(new_person->firstname, firstname);
     strcpy(new_person->lastname, lastname);

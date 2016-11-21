@@ -9,9 +9,11 @@ Rename this file to "Utility.h" for use in your project.
 Then delete this comment - it is not part of the finished code */
 
 #include "string.h"
+#include "Person.h"
 /* global variable declarations for this module */
 extern int g_string_memory;				/* number of bytes used in C-strings */
 
 /* Your own decleration and definitions */
 
 void* malloc_with_error_handling(size_t size);
+int cmp_person_lastname(struct Person* person1, struct Person* person2);
