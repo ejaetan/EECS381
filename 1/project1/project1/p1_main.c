@@ -14,9 +14,15 @@
 #include "Utility.h"
 
 #define MAX_CHAR 64
+#define MAX_INPUT 63
+#define STR2(x)
+#define STR(X) STR2(X)
 
 /* function prototypes */
 void add_individual(struct Ordered_container* c_ptr);
+//void add_room(struct Ordered_container* c_ptr);
+
+
 void print_group(struct Ordered_container* c_ptr);
 void print_individual(struct Ordered_container* c_ptr);
 //void delete_individual(struct Ordered_container* c_ptr);
@@ -42,7 +48,7 @@ int main() {
                             add_individual(people_list);
                             break;
                         case'r':
-                            
+                            //add_room(room_list);
                             break;
                         default:
                             printf("Unrecognized command\n");
@@ -52,7 +58,7 @@ int main() {
                 case 'd':
                     switch (command2) {
                         case 'i':
-                            delete_individual(people_list);
+                            //delete_individual(people_list);
                             break;
                             
                         default:
@@ -85,16 +91,13 @@ int main() {
 }
 
 /* function definition */
-
-
-                  
 void add_individual(struct Ordered_container* c_ptr) {
     char firstname[MAX_CHAR], lastname[MAX_CHAR], phoneno[MAX_CHAR];
     
     
-    int scan_firstname = scanf(" %63s", firstname);
-    int scan_lastname = scanf(" %63s", lastname);
-    int scan_phoneno = scanf(" %63s", phoneno);
+    int scan_firstname = scanf(" %"STR(X)"s", firstname);
+    int scan_lastname = scanf(" %"STR(X)"s", lastname);
+    int scan_phoneno = scanf(" %"STR(X)"s", phoneno);
     
     if (scan_firstname > 0 && scan_lastname > 0 && scan_phoneno) {
         struct Person *new_person = create_Person(firstname, lastname, phoneno);
@@ -111,10 +114,16 @@ void add_individual(struct Ordered_container* c_ptr) {
     
 }
 
+/*
+void add_room(struct Ordered_container* c_ptr) {
+    char firstname[MAX_CHAR]
+}
+ */
+
 void print_individual(struct Ordered_container* c_ptr) {
     char lastname[MAX_CHAR];
     
-    int scan_lastname = scanf(" %63s", lastname);
+    int scan_lastname = scanf(" %"STR(X)"s", lastname);
     if (scan_lastname > 0) {
         void* found_item_ptr = OC_find_item_arg(c_ptr, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
         if (found_item_ptr) {
@@ -133,7 +142,7 @@ void print_group(struct Ordered_container* c_ptr) {
 void delete_individual(struct Ordered_container* c_ptr) {
     char lastname[MAX_CHAR];
     
-    int scan_lastname = scanf(" %63s", lastname);
+    int scan_lastname = scanf(" %"STR(X)"s", lastname);
     if (scan_lastname > 0) {
         void* found_item_ptr = OC_find_item_arg(c_ptr, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
         if (found_item_ptr) {
