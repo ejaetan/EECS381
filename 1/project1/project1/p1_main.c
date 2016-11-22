@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "Ordered_container.h"
 #include "Room.h"
 #include "Meeting.h"
@@ -20,7 +21,7 @@
 
 /* function prototypes */
 void add_individual(struct Ordered_container* c_ptr);
-//void add_room(struct Ordered_container* c_ptr);
+void add_room(struct Ordered_container* c_ptr);
 
 
 void print_group(struct Ordered_container* c_ptr);
@@ -30,6 +31,7 @@ void print_individual(struct Ordered_container* c_ptr);
 /* helper function protypes */
 int cmp_person_lastname_arg(char *lastname, struct Person * person_ptr);
 int cmp_room_num(const struct Room *rm_ptr1, const struct Room *rm_ptr2);
+void skip_type_ahead(void);
 
 int main() {
     struct Ordered_container* people_list = OC_create_container((OC_comp_fp_t)cmp_person_lastname);
@@ -48,7 +50,7 @@ int main() {
                             add_individual(people_list);
                             break;
                         case'r':
-                            //add_room(room_list);
+                            add_room(room_list);
                             break;
                         default:
                             printf("Unrecognized command\n");
@@ -113,12 +115,33 @@ void add_individual(struct Ordered_container* c_ptr) {
     }
     
 }
-
-/*
-void add_room(struct Ordered_container* c_ptr) {
-    char firstname[MAX_CHAR]
+int isInteger(int input_num);
+int isInteger(int input_num) {
+    if(input_num > 0) {
+        return 1;
+    }
+    return 0;
 }
- */
+
+void add_room(struct Ordered_container* c_ptr) {
+    int room_num = -1;
+    
+    int scan_room_num = scanf(" %"STR(X)"d", &room_num);
+    
+    if ( (scan_room_num > 0) && (isInteger(room_num)) ) {
+        printf("%d\n", room_num);
+        skip_type_ahead();
+        
+    } else if (!scan_room_num) {
+        printf("Could not read an integer value!\n");
+        skip_type_ahead();
+    } else if (!isInteger(room_num)) {
+        printf("Room number is not in range!\n");
+        skip_type_ahead();
+    }
+    
+}
+
 
 void print_individual(struct Ordered_container* c_ptr) {
     char lastname[MAX_CHAR];
@@ -160,4 +183,8 @@ int cmp_person_lastname_arg(char *lastname, struct Person * person_ptr) {
 
 int cmp_room_num(const struct Room *rm_ptr1, const struct Room *rm_ptr2) {
     return get_Room_number(rm_ptr1) - get_Room_number(rm_ptr2);
+}
+
+void skip_type_ahead(void) {
+    scanf("%*[^\n]");
 }
