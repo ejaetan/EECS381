@@ -29,9 +29,11 @@ void print_individual(struct Ordered_container* c_ptr);
 //void delete_individual(struct Ordered_container* c_ptr);
 
 /* helper function protypes */
+void skip_type_ahead(void);
 int cmp_person_lastname_arg(char *lastname, struct Person * person_ptr);
 int cmp_room_num(const struct Room *rm_ptr1, const struct Room *rm_ptr2);
-void skip_type_ahead(void);
+int cmp_room_num_arg(void* given_num, struct Room * room_ptr);
+
 
 int main() {
     struct Ordered_container* people_list = OC_create_container((OC_comp_fp_t)cmp_person_lastname);
@@ -129,8 +131,15 @@ void add_room(struct Ordered_container* c_ptr) {
     int scan_room_num = scanf(" %"STR(X)"d", &room_num);
     
     if ( (scan_room_num > 0) && (isInteger(room_num)) ) {
-        printf("%d\n", room_num);
         skip_type_ahead();
+        void* found_item_ptr = OC_find_item_arg(c_ptr, &room_num, (OC_find_item_arg_fp_t) cmp_room_num_arg);
+        if(!found_item_ptr) {
+            struct Room *new_room = create_Room(room_num);
+            OC_insert(c_ptr, new_room);
+        } else {
+            printf("There is already a room with this number!\n");
+        }
+        
         
     } else if (!scan_room_num) {
         printf("Could not read an integer value!\n");
@@ -177,6 +186,10 @@ void delete_individual(struct Ordered_container* c_ptr) {
  */
 
 /* helper function defintion */
+void skip_type_ahead(void) {
+    scanf("%*[^\n]");
+}
+
 int cmp_person_lastname_arg(char *lastname, struct Person * person_ptr) {
     return strcmp(lastname, get_Person_lastname(person_ptr));
 }
@@ -185,6 +198,6 @@ int cmp_room_num(const struct Room *rm_ptr1, const struct Room *rm_ptr2) {
     return get_Room_number(rm_ptr1) - get_Room_number(rm_ptr2);
 }
 
-void skip_type_ahead(void) {
-    scanf("%*[^\n]");
+int cmp_room_num_arg(void* given_num, struct Room * room_ptr) {
+    return *(int*)given_num - get_Room_number(room_ptr);
 }
