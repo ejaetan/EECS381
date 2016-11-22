@@ -100,8 +100,12 @@ void print_individual(struct Ordered_container* c_ptr) {
     
     int scan_lastname = scanf(" %63s", lastname);
     if (scan_lastname > 0) {
-        void* found_ptr = OC_find_item(c_ptr, lastname);
-        print_Person(OC_get_data_ptr(found_ptr));
+        void* found_item_ptr = OC_find_item_arg(c_ptr, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
+        if (found_item_ptr) {
+            print_Person(OC_get_data_ptr(found_item_ptr));
+        } else {
+            printf("No person with that name!\n");
+        }
     }
 }
 
