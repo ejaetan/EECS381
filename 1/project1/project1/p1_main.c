@@ -7,6 +7,7 @@
 //
 
 #include <stdio.h>
+#include <string.h>
 #include "Ordered_container.h"
 #include "Room.h"
 #include "Meeting.h"
@@ -17,7 +18,7 @@
 /* function prototypes */
 void add_individual(struct Ordered_container* c_ptr);
 void print_group(struct Ordered_container* c_ptr);
-
+void print_individual(struct Ordered_container* c_ptr);
 
 int main() {
     struct Ordered_container* people_list = OC_create_container((OC_comp_fp_t)cmp_person_lastname);
@@ -42,6 +43,9 @@ int main() {
                     break;  //break for command1 'a'
                 case 'p':
                     switch (command2) {
+                        case 'i':
+                            print_individual(people_list);
+                            break;
                         case 'g':
                             print_group(people_list);
                             break;
@@ -63,6 +67,11 @@ int main() {
 }
 
 /* function definition */
+int cmp_person_lastname_arg(char *lastname, struct Person * person_ptr);
+int cmp_person_lastname_arg(char *lastname, struct Person * person_ptr) {
+    return strcmp(lastname, get_Person_lastname(person_ptr));
+}
+                  
 void add_individual(struct Ordered_container* c_ptr) {
     char firstname[MAX_CHAR], lastname[MAX_CHAR], phoneno[MAX_CHAR];
     
@@ -73,11 +82,31 @@ void add_individual(struct Ordered_container* c_ptr) {
     
     if (scan_firstname > 0 && scan_lastname > 0 && scan_phoneno) {
         struct Person *new_person = create_Person(firstname, lastname, phoneno);
-        OC_insert(c_ptr, new_person);
+        
+        void* found_item_ptr = OC_find_item_arg(c_ptr, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
+        if (!found_item_ptr) {
+            OC_insert(c_ptr, new_person);
+        } else {
+            printf("There is already a person with this last name!\n");
+        }
+        
+        
     }
     
+}
+
+void print_individual(struct Ordered_container* c_ptr) {
+    char lastname[MAX_CHAR];
+    
+    int scan_lastname = scanf(" %63s", lastname);
+    if (scan_lastname > 0) {
+        void* found_ptr = OC_find_item(c_ptr, lastname);
+        print_Person(OC_get_data_ptr(found_ptr));
+    }
 }
 
 void print_group(struct Ordered_container* c_ptr) {
     OC_apply(c_ptr, (OC_apply_fp_t) print_Person);
 }
+
+
