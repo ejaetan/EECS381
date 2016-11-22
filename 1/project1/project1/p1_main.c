@@ -19,9 +19,15 @@
 void add_individual(struct Ordered_container* c_ptr);
 void print_group(struct Ordered_container* c_ptr);
 void print_individual(struct Ordered_container* c_ptr);
+//void delete_individual(struct Ordered_container* c_ptr);
+
+/* helper function protypes */
+int cmp_person_lastname_arg(char *lastname, struct Person * person_ptr);
+int cmp_room_num(const struct Room *rm_ptr1, const struct Room *rm_ptr2);
 
 int main() {
     struct Ordered_container* people_list = OC_create_container((OC_comp_fp_t)cmp_person_lastname);
+    struct Ordered_container* room_list = OC_create_container((OC_comp_fp_t) cmp_room_num);
     char command1, command2;
     
     while (1) {
@@ -35,12 +41,24 @@ int main() {
                         case 'i':
                             add_individual(people_list);
                             break;
+                        case'r':
                             
+                            break;
                         default:
                             printf("Unrecognized command\n");
                             break;  // default break for command2
                     }
                     break;  //break for command1 'a'
+                case 'd':
+                    switch (command2) {
+                        case 'i':
+                            delete_individual(people_list);
+                            break;
+                            
+                        default:
+                            break;
+                    }
+                
                 case 'p':
                     switch (command2) {
                         case 'i':
@@ -67,10 +85,8 @@ int main() {
 }
 
 /* function definition */
-int cmp_person_lastname_arg(char *lastname, struct Person * person_ptr);
-int cmp_person_lastname_arg(char *lastname, struct Person * person_ptr) {
-    return strcmp(lastname, get_Person_lastname(person_ptr));
-}
+
+
                   
 void add_individual(struct Ordered_container* c_ptr) {
     char firstname[MAX_CHAR], lastname[MAX_CHAR], phoneno[MAX_CHAR];
@@ -113,4 +129,26 @@ void print_group(struct Ordered_container* c_ptr) {
     OC_apply(c_ptr, (OC_apply_fp_t) print_Person);
 }
 
+/*
+void delete_individual(struct Ordered_container* c_ptr) {
+    char lastname[MAX_CHAR];
+    
+    int scan_lastname = scanf(" %63s", lastname);
+    if (scan_lastname > 0) {
+        void* found_item_ptr = OC_find_item_arg(c_ptr, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
+        if (found_item_ptr) {
+            
+        }
+    }
+    
+}
+ */
 
+/* helper function defintion */
+int cmp_person_lastname_arg(char *lastname, struct Person * person_ptr) {
+    return strcmp(lastname, get_Person_lastname(person_ptr));
+}
+
+int cmp_room_num(const struct Room *rm_ptr1, const struct Room *rm_ptr2) {
+    return get_Room_number(rm_ptr1) - get_Room_number(rm_ptr2);
+}
