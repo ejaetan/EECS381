@@ -32,3 +32,11 @@ void* malloc_with_error_handling(size_t size) {
 int cmp_person_lastname(struct Person* person1, struct Person* person2) {
     return strcmp(get_Person_lastname(person1), get_Person_lastname(person2));
 }
+
+/* derived at Room.c as helper function */
+int convert_time(int a) {
+    if (a < 9) {
+        a += 12;
+    }
+    return a;
+}

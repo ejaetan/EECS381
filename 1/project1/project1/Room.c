@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 /* Helper function prototype*/
-int convert_time(int a);
+
 int cmp_meeting_time(struct Meeting* meeting_ptr1, struct Meeting* meeting_ptr2);
 int cmp_meeting_time_arg(int* given_time, struct Meeting* meeting_ptr);
 
@@ -93,12 +93,7 @@ void print_Room(const struct Room* room_ptr) {
 }
 
 /* Helper function */
-int convert_time(int a) {
-    if (a < 9) {
-        a += 12;
-    }
-    return a;
-}
+
 
 int cmp_meeting_time(struct Meeting* meeting_ptr1, struct Meeting* meeting_ptr2) {
     return convert_time(get_Meeting_time(meeting_ptr1)) - convert_time(get_Meeting_time(meeting_ptr2));
