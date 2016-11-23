@@ -29,6 +29,10 @@ void print_group(struct Ordered_container* c_ptr);
 void print_individual(struct Ordered_container* c_ptr);
 void print_room_m(struct Ordered_container* c_ptr);
 void print_meeting_m(struct Ordered_container* c_ptr);
+void print_schedule(struct Ordered_container* c_ptr);
+void print_allocation(struct Ordered_container* rm_ptr, struct Ordered_container* ppl_ptr);
+
+
 //void delete_individual(struct Ordered_container* c_ptr);
 
 /* helper function protypes */
@@ -44,8 +48,9 @@ int main() {
     struct Ordered_container* people_list = OC_create_container((OC_comp_fp_t)cmp_person_lastname);
     struct Ordered_container* room_list = OC_create_container((OC_comp_fp_t) cmp_room_num);
     char command1, command2;
-    
+
     while (1) {
+        printf("\nEnter command: ");
         int c1_result = scanf(" %c", &command1);
         int c2_result = scanf(" %c", &command2);
         
@@ -97,6 +102,12 @@ int main() {
                         case 'm':
                             print_meeting_m(room_list);
                             break;
+                        case 's':
+                            print_schedule(room_list);
+                            break;
+                        case 'a':
+                            print_allocation(room_list, people_list);
+                            break;
                         default:
                             skip_type_ahead();
                             break;
@@ -130,6 +141,7 @@ void add_individual(struct Ordered_container* c_ptr) {
         void* found_item_ptr = OC_find_item_arg(c_ptr, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
         if (!found_item_ptr) {
             OC_insert(c_ptr, new_person);
+            printf("Person %s added\n", lastname);
         } else {
             printf("There is already a person with this last name!\n");
         }
@@ -148,6 +160,7 @@ void add_room(struct Ordered_container* c_ptr) {
     if(!found_rm_item_ptr) {
         struct Room *new_room = create_Room(room_num);
         OC_insert(c_ptr, new_room);
+        printf("Room %d added\n", room_num);
     } else {
         printf("There is already a room with this number!\n");
     }
@@ -170,6 +183,8 @@ void add_meeting(struct Ordered_container* c_ptr) {
             struct Meeting *new_meeting = create_Meeting(meeting_time, topic);
             if (!add_Room_Meeting(room, new_meeting)) {
                 printf("Meeting added at %d\n", meeting_time);
+            } else {
+                printf("There is already a meeting at that time!\n");
             }
         }
     } else {
@@ -228,7 +243,13 @@ void print_individual(struct Ordered_container* c_ptr) {
 }
 
 void print_group(struct Ordered_container* c_ptr) {
-    OC_apply(c_ptr, (OC_apply_fp_t) print_Person);
+    if (!OC_empty(c_ptr)) {
+        printf("Information for %d people:\n", OC_get_size(c_ptr));
+        OC_apply(c_ptr, (OC_apply_fp_t) print_Person);
+    } else {
+        printf("List of people is empty\n");
+    }
+    
 }
 
 void print_room_m(struct Ordered_container* c_ptr) {
@@ -266,6 +287,27 @@ void print_meeting_m(struct Ordered_container* c_ptr) {
         }
 
     }
+}
+
+void print_schedule(struct Ordered_container* c_ptr) {
+    if (!OC_empty(c_ptr)) {
+        int rm_c_size = OC_get_size(c_ptr);
+        printf("Information for %d rooms:\n", rm_c_size);
+        OC_apply(c_ptr, (OC_apply_fp_t) print_Room);
+    } else {
+        printf("List of rooms is empty\n");
+    }
+}
+
+void print_allocation(struct Ordered_container* rm_ptr, struct Ordered_container* ppl_ptr) {
+    printf("Memory allocations:\n");
+    printf("C-strings: %d bytes total\n", g_string_memory);
+    printf("Person structs: %d\n", OC_get_size(ppl_ptr));
+    printf("Meeting structs: %d\n", g_Meeting_memory);
+    printf("Room structs: %d\n", OC_get_size(rm_ptr));
+    printf("Containers: %d\n", g_Container_count);
+    printf("Container items in use: %d\n", g_Container_items_in_use);
+    printf("Container items allocated: %d\n", g_Container_items_allocated);
 }
 
 /*

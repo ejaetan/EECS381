@@ -54,5 +54,5 @@ const char* get_Person_lastname(const struct Person* person_ptr) {
 
 /* Print a Person data item to standard output with a final \n character. */
 void print_Person(const struct Person* person_ptr) {
-    printf("%s\t%s\t%s\t\n", person_ptr->firstname, person_ptr->lastname, person_ptr->phoneno);
+    printf("%s %s %s\n", person_ptr->firstname, person_ptr->lastname, person_ptr->phoneno);
 }
