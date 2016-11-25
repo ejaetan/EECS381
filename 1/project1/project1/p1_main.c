@@ -36,6 +36,7 @@ void print_allocation(struct Ordered_container* rm_ptr, struct Ordered_container
 
 /* delete functions */
 void delete_individual(struct Ordered_container* c_ptr);
+void delete_meeting(struct Ordered_container* c_ptr);
 
 /* helper function protypes */
 void skip_type_ahead(void);
@@ -83,7 +84,9 @@ int main() {
                         case 'i':
                             delete_individual(people_list);
                             break;
-                            
+                        case 'm':
+                            delete_meeting(room_list);
+                            break;
                         default:
                             printf("Unrecognized command\n");
                             skip_type_ahead();
@@ -317,7 +320,6 @@ void print_allocation(struct Ordered_container* rm_ptr, struct Ordered_container
 
 
 /* delete functions */
-
 void delete_individual(struct Ordered_container* c_ptr) {
     char lastname[MAX_CHAR];
     
@@ -335,6 +337,31 @@ void delete_individual(struct Ordered_container* c_ptr) {
     
 }
 
+void delete_meeting(struct Ordered_container* c_ptr) {
+    int room_num = -1, meeting_time = -1;
+    int scan_room_num = scanf("%d", &room_num);
+    int scan_meeting_time = scanf("%d", &meeting_time);
+    
+    void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, c_ptr);
+    
+    if(!found_rm_item_ptr) {
+        printf("No room with that number!\n");
+    } else {
+        struct Room* room = OC_get_data_ptr(found_rm_item_ptr);
+        if(meeting_input_result(scan_meeting_time, meeting_time) ){
+            struct Meeting* found_meeting = find_Room_Meeting(room, meeting_time);
+            if (!found_meeting) {
+                printf("No meeting at that time!\n");
+            } else {
+                printf("Meeting at 3 deleted\n");
+                destroy_Room(room);
+                OC_delete_item(c_ptr, found_rm_item_ptr);
+            }
+            
+        }
+        
+    }
+}
 
 /* helper function defintion */
 void skip_type_ahead(void) {
