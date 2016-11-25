@@ -113,37 +113,33 @@ void* OC_get_data_ptr(const void* item_ptr) {
 /* Delete the specified item.
  Caller is responsible for any deletion of the data pointed to by the item. */
 void OC_delete_item(struct Ordered_container* c_ptr, void* item_ptr) {
-    if (c_ptr) {
-        struct LL_Node* found_item = OC_find_item(c_ptr, (struct LL_Node*) item_ptr );
+    if (c_ptr && item_ptr) {
+        struct LL_Node* current_node = (struct LL_Node*) item_ptr;
         int OC_size = OC_get_size(c_ptr);
-        if (found_item) {
-            if (OC_size == 1) {
-                c_ptr->first = c_ptr->last = NULL;
-                // delete item is the first item on the list
-            } else if (OC_size > 1 && !(found_item->prev)) {
+        if(OC_size == 1) {
+            c_ptr->first = c_ptr->last = NULL;
+        } else if (OC_size > 1) {
+            // delete item is the first item on the list
+            if (!current_node->prev) {
                 c_ptr->first = c_ptr->first->next;
                 c_ptr->first->prev = NULL;
-                // delete item is in the last item on the list
-            } else if (OC_size > 1 && !(found_item->next)) {
+            } else if (!current_node->next) {
                 c_ptr->last = c_ptr->last->prev;
                 c_ptr->last->next = NULL;
-                // delete item is in the middle on the list
-            } else if (OC_size > 2) {
-                struct LL_Node *found_prev_node = NULL, *found_next_node = NULL;
-                found_prev_node = found_item->prev;
-                found_next_node = found_item->next;
-                found_prev_node->next = found_next_node;
-                found_next_node->prev = found_prev_node;
             }
-            
-            free(found_item);
-            found_item = NULL;
-            c_ptr->size--;
-            g_Container_items_in_use--;
-            g_Container_items_allocated--;
+        } else if (OC_size > 2) {
+            struct LL_Node *curr_prev_node = NULL, *curr_next_node = NULL;
+            curr_prev_node = current_node->prev;
+            curr_next_node = current_node->next;
+            curr_prev_node->next = curr_next_node;
+            curr_next_node->prev = curr_prev_node;
         }
+        free(current_node);
+        current_node = NULL;
+        c_ptr->size--;
+        g_Container_items_in_use--;
+        g_Container_items_allocated--;
     }
-    
 }
 
 /*

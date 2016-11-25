@@ -20,11 +20,13 @@
 #define STR(X) STR2(X)
 
 /* function prototypes */
+/* add functions */
 void add_individual(struct Ordered_container* c_ptr);
 void add_room(struct Ordered_container* c_ptr);
 void add_meeting(struct Ordered_container* c_ptr);
 void add_participant(struct Ordered_container* rm_ptr, struct Ordered_container* ppl_ptr);
 
+/* print functions */
 void print_group(struct Ordered_container* c_ptr);
 void print_individual(struct Ordered_container* c_ptr);
 void print_room_m(struct Ordered_container* c_ptr);
@@ -32,8 +34,8 @@ void print_meeting_m(struct Ordered_container* c_ptr);
 void print_schedule(struct Ordered_container* c_ptr);
 void print_allocation(struct Ordered_container* rm_ptr, struct Ordered_container* ppl_ptr);
 
-
-//void delete_individual(struct Ordered_container* c_ptr);
+/* delete functions */
+void delete_individual(struct Ordered_container* c_ptr);
 
 /* helper function protypes */
 void skip_type_ahead(void);
@@ -79,7 +81,7 @@ int main() {
                 case 'd':
                     switch (command2) {
                         case 'i':
-                            //delete_individual(people_list);
+                            delete_individual(people_list);
                             break;
                             
                         default:
@@ -87,6 +89,7 @@ int main() {
                             skip_type_ahead();
                             break;
                     }
+                    break;
                 
                 case 'p':
                     switch (command2) {
@@ -127,6 +130,7 @@ int main() {
 }
 
 /* function definition */
+/* add functions */
 void add_individual(struct Ordered_container* c_ptr) {
     char firstname[MAX_CHAR], lastname[MAX_CHAR], phoneno[MAX_CHAR];
     
@@ -228,6 +232,7 @@ void add_participant(struct Ordered_container* rm_ptr, struct Ordered_container*
     }
 }
 
+/* print functions */
 void print_individual(struct Ordered_container* c_ptr) {
     char lastname[MAX_CHAR];
     
@@ -310,7 +315,9 @@ void print_allocation(struct Ordered_container* rm_ptr, struct Ordered_container
     printf("Container items allocated: %d\n", g_Container_items_allocated);
 }
 
-/*
+
+/* delete functions */
+
 void delete_individual(struct Ordered_container* c_ptr) {
     char lastname[MAX_CHAR];
     
@@ -318,12 +325,16 @@ void delete_individual(struct Ordered_container* c_ptr) {
     if (scan_lastname > 0) {
         void* found_item_ptr = OC_find_item_arg(c_ptr, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
         if (found_item_ptr) {
- 
+            struct Person* person = OC_get_data_ptr(found_item_ptr);
+            printf("Person %s deleted\n", get_Person_lastname(person));
+            destroy_Person(person);
+            OC_delete_item(c_ptr, found_item_ptr);
+            
         }
     }
     
 }
- */
+
 
 /* helper function defintion */
 void skip_type_ahead(void) {
