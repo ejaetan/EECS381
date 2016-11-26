@@ -38,6 +38,7 @@ void print_allocation(struct Ordered_container* rm_ptr, struct Ordered_container
 void delete_individual(struct Ordered_container* c_ptr);
 void delete_meeting(struct Ordered_container* c_ptr);
 void delete_participant(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c);
+void delete_room(struct Ordered_container* rm_ptr_c);
 
 /* helper function protypes */
 void skip_type_ahead(void);
@@ -89,7 +90,7 @@ int main() {
                             delete_meeting(room_list);
                             break;
                         case 'r':
-                            //delete_room(room_list);
+                            delete_room(room_list);
                             break;
                         case 'p':
                             delete_participant(room_list, people_list);
@@ -362,7 +363,6 @@ void delete_meeting(struct Ordered_container* c_ptr) {
             } else {
                 remove_Room_Meeting(room_ptr, meeting_ptr);
                 destroy_Meeting(meeting_ptr);
-                
                 printf("Meeting at %d deleted\n", meeting_time);
             }
             
@@ -403,6 +403,20 @@ void delete_participant(struct Ordered_container* rm_ptr_c, struct Ordered_conta
             
         }
     }
+}
+
+void delete_room(struct Ordered_container* rm_ptr_c) {
+    int room_num = -1;
+    int scan_room_num = scanf(" %d", &room_num);
+    void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, rm_ptr_c);
+    
+    if(!found_rm_item_ptr) {
+        printf("No room with that number!\n");
+        return;
+    }
+    struct Room* room_ptr = OC_get_data_ptr(found_rm_item_ptr);
+    destroy_Room(room_ptr);
+    OC_delete_item(rm_ptr_c, found_rm_item_ptr);
 }
 
 /* helper function defintion */
