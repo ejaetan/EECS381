@@ -169,7 +169,6 @@ int OC_equals_or_just_over(const struct Ordered_container* c_ptr, const void* da
  This function will not modify the pointed-to data.*/
 int OC_insert(struct Ordered_container* c_ptr, const void* data_ptr) {
     if (c_ptr) {
-        
         struct LL_Node* new_node = malloc_with_error_handling(sizeof(struct LL_Node));
         new_node->data_ptr = (void*) data_ptr;
         

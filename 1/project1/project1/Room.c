@@ -64,7 +64,7 @@ int remove_Room_Meeting(struct Room* room_ptr, const struct Meeting* meeting_ptr
     void *found_item_ptr = OC_find_item(room_ptr->meetings, meeting_ptr);
     
     if (found_item_ptr) {
-        OC_delete_item(room_ptr->meetings, (void*) meeting_ptr);
+        OC_delete_item(room_ptr->meetings, found_item_ptr);
         return 0;
     }
     return -1;
