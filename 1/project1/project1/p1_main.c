@@ -35,7 +35,7 @@ void print_schedule(struct Ordered_container* rm_ptr_c);
 void print_allocation(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c);
 
 /* delete functions */
-void delete_individual(struct Ordered_container* ppl_ptr_c);
+void delete_individual(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c);
 void delete_meeting(struct Ordered_container* rm_ptr_c);
 void delete_participant(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c);
 void delete_room(struct Ordered_container* rm_ptr_c);
@@ -85,7 +85,7 @@ int main() {
                 case 'd':
                     switch (command2) {
                         case 'i':
-                            delete_individual(people_list);
+                            delete_individual(room_list, people_list);
                             break;
                         case 'm':
                             delete_meeting(room_list);
@@ -158,14 +158,12 @@ void add_individual(struct Ordered_container* ppl_ptr_c) {
         struct Person *new_person = create_Person(firstname, lastname, phoneno);
         
         void* found_item_ptr = OC_find_item_arg(ppl_ptr_c, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
-        if (!found_item_ptr) {
-            OC_insert(ppl_ptr_c, new_person);
-            printf("Person %s added\n", lastname);
-        } else {
+        if (found_item_ptr) {
             printf("There is already a person with this last name!\n");
+            return;
         }
-        
-        
+        OC_insert(ppl_ptr_c, new_person);
+        printf("Person %s added\n", lastname);
     }
     
 }
@@ -180,9 +178,10 @@ void add_room(struct Ordered_container* rm_ptr_c) {
         struct Room *new_room = create_Room(room_num);
         OC_insert(rm_ptr_c, new_room);
         printf("Room %d added\n", room_num);
-    } else {
-        printf("There is already a room with this number!\n");
+        return;
     }
+    printf("There is already a room with this number!\n");
+    
     
 }
 
@@ -192,24 +191,26 @@ void add_meeting(struct Ordered_container* rm_ptr_c) {
     int scan_meeting_time = scanf("%d", &meeting_time);
     
     char topic[MAX_CHAR];
-    int scan_topic = scanf(" %"STR(X)"s", topic);
+    scanf(" %"STR(X)"s", topic);
     
     void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, rm_ptr_c);
-    if(found_rm_item_ptr) {
-        struct Room * room = OC_get_data_ptr(found_rm_item_ptr);
-        
-        if(meeting_input_result(scan_meeting_time, meeting_time) && (scan_topic > 0) ){
-            struct Meeting *new_meeting = create_Meeting(meeting_time, topic);
-            if (!add_Room_Meeting(room, new_meeting)) {
-                printf("Meeting added at %d\n", meeting_time);
-            } else {
-                printf("There is already a meeting at that time!\n");
-            }
-        }
-    } else {
+    if(!found_rm_item_ptr) {
         printf("Room %d doesn't exist!\n", room_num);
+        return;
     }
     
+    struct Room * room = OC_get_data_ptr(found_rm_item_ptr);
+    
+    if (!meeting_input_result(scan_meeting_time, meeting_time)) {
+        printf("There is already a meeting at that time!\n");
+        return;
+    }
+    
+    struct Meeting *new_meeting = create_Meeting(meeting_time, topic);
+    if (!add_Room_Meeting(room, new_meeting)) {
+        printf("Meeting added at %d\n", meeting_time);
+    }
+
 }
 
 void add_participant(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c) {
@@ -218,48 +219,55 @@ void add_participant(struct Ordered_container* rm_ptr_c, struct Ordered_containe
     int scan_meeting_time = scanf("%d", &meeting_time);
     
     char lastname[MAX_CHAR];
-    int scan_lastname = scanf(" %"STR(X)"s", lastname);
+    scanf(" %"STR(X)"s", lastname);
     
     void* found_item_ptr = rm_input_result(scan_room_num, room_num, rm_ptr_c);
     
-    if(found_item_ptr){
-        struct Room * room = OC_get_data_ptr(found_item_ptr);
-        
-        if(meeting_input_result(scan_meeting_time, meeting_time) && (scan_lastname > 0) ){
-            struct Meeting* found_meeting = find_Room_Meeting(room, meeting_time);
-            if (found_meeting) {
-                void* found_ppl_item_ptr = OC_find_item_arg(ppl_ptr_c, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
-                if (!found_ppl_item_ptr) {
-                    printf("No person with that name!\n");
-                } else {
-                    struct Person* found_person = OC_get_data_ptr(found_ppl_item_ptr);
-                    if (is_Meeting_participant_present(found_meeting, found_person)) {
-                        printf("This person is already a participant!\n");
-                    } else {
-                        add_Meeting_participant(found_meeting, found_person);
-                        printf("Participant %s added\n", lastname);
-                    }
-                }
-                
-            }
-            
-        }
+    if(!found_item_ptr){
+        return;
     }
+    
+    struct Room * room = OC_get_data_ptr(found_item_ptr);
+    if (!meeting_input_result(scan_meeting_time, meeting_time)) {
+        return;
+    }
+    
+    
+    struct Meeting* found_meeting = find_Room_Meeting(room, meeting_time);
+    if (!found_meeting) {
+        return;
+    }
+    
+    void* found_ppl_item_ptr = OC_find_item_arg(ppl_ptr_c, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
+    if (!found_ppl_item_ptr) {
+        printf("No person with that name!\n");
+        return;
+    }
+    
+    struct Person* found_person = OC_get_data_ptr(found_ppl_item_ptr);
+    if (is_Meeting_participant_present(found_meeting, found_person)) {
+        printf("This person is already a participant!\n");
+    } else {
+        add_Meeting_participant(found_meeting, found_person);
+        printf("Participant %s added\n", lastname);
+    }
+    
+        
+    
 }
 
 /* print functions */
 void print_individual(struct Ordered_container* ppl_ptr_c) {
     char lastname[MAX_CHAR];
     
-    int scan_lastname = scanf(" %"STR(X)"s", lastname);
-    if (scan_lastname > 0) {
-        void* found_item_ptr = OC_find_item_arg(ppl_ptr_c, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
-        if (found_item_ptr) {
-            print_Person(OC_get_data_ptr(found_item_ptr));
-        } else {
-            printf("No person with that name!\n");
-        }
+    scanf(" %"STR(X)"s", lastname);
+    void* found_item_ptr = OC_find_item_arg(ppl_ptr_c, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
+    if (found_item_ptr) {
+        print_Person(OC_get_data_ptr(found_item_ptr));
+    } else {
+        printf("No person with that name!\n");
     }
+
 }
 
 void print_group(struct Ordered_container* ppl_ptr_c) {
@@ -294,18 +302,19 @@ void print_meeting_m(struct Ordered_container* rm_ptr_c) {
     
     if(!found_rm_item_ptr) {
         printf("No room with that number!\n");
-    } else {
-        struct Room* room = OC_get_data_ptr(found_rm_item_ptr);
-        if(meeting_input_result(scan_meeting_time, meeting_time) ){
-            struct Meeting* found_meeting = find_Room_Meeting(room, meeting_time);
-            if (!found_meeting) {
-                printf("No meeting at that time!\n");
-            } else {
-                print_Meeting(found_meeting);
-            }
+        return;
+    }
     
-        }
-
+    struct Room* room = OC_get_data_ptr(found_rm_item_ptr);
+    if(!meeting_input_result(scan_meeting_time, meeting_time) ){
+        return;
+    }
+    
+    struct Meeting* found_meeting = find_Room_Meeting(room, meeting_time);
+    if (!found_meeting) {
+        printf("No meeting at that time!\n");
+    } else {
+        print_Meeting(found_meeting);
     }
 }
 
@@ -332,20 +341,19 @@ void print_allocation(struct Ordered_container* rm_ptr_c, struct Ordered_contain
 
 
 /* delete functions */
-void delete_individual(struct Ordered_container* ppl_ptr_c) {
+void delete_individual(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c) {
     char lastname[MAX_CHAR];
     
-    int scan_lastname = scanf(" %"STR(X)"s", lastname);
-    if (scan_lastname > 0) {
-        void* found_item_ptr = OC_find_item_arg(ppl_ptr_c, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
-        if (found_item_ptr) {
-            struct Person* person = OC_get_data_ptr(found_item_ptr);
-            printf("Person %s deleted\n", get_Person_lastname(person));
-            destroy_Person(person);
-            OC_delete_item(ppl_ptr_c, found_item_ptr);
-        }
-    }
+    scanf(" %"STR(X)"s", lastname);
     
+    void* found_item_ptr = OC_find_item_arg(ppl_ptr_c, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
+    if (found_item_ptr) {
+        struct Person* person = OC_get_data_ptr(found_item_ptr);
+        
+        printf("Person %s deleted\n", get_Person_lastname(person));
+        destroy_Person(person);
+        OC_delete_item(ppl_ptr_c, found_item_ptr);
+    }
 }
 
 void delete_meeting(struct Ordered_container* rm_ptr_c) {
@@ -361,18 +369,18 @@ void delete_meeting(struct Ordered_container* rm_ptr_c) {
     }
     
     struct Room* room_ptr = OC_get_data_ptr(found_rm_item_ptr);
-    if(meeting_input_result(scan_meeting_time, meeting_time) ){
-        struct Meeting* meeting_ptr = find_Room_Meeting(room_ptr, meeting_time);
-        if (!meeting_ptr) {
-            printf("No meeting at that time!\n");
-        } else {
-            remove_Room_Meeting(room_ptr, meeting_ptr);
-            destroy_Meeting(meeting_ptr);
-            printf("Meeting at %d deleted\n", meeting_time);
-        }
-        
+    if(!meeting_input_result(scan_meeting_time, meeting_time) ){
+        return;
     }
-        
+    
+    struct Meeting* meeting_ptr = find_Room_Meeting(room_ptr, meeting_time);
+    if (!meeting_ptr) {
+        printf("No meeting at that time!\n");
+    } else {
+        remove_Room_Meeting(room_ptr, meeting_ptr);
+        destroy_Meeting(meeting_ptr);
+        printf("Meeting at %d deleted\n", meeting_time);
+    }
     
 }
 
@@ -382,31 +390,31 @@ void delete_participant(struct Ordered_container* rm_ptr_c, struct Ordered_conta
     int scan_meeting_time = scanf("%d", &meeting_time);
     
     char lastname[MAX_CHAR];
-    int scan_lastname = scanf(" %"STR(X)"s", lastname);
+    scanf(" %"STR(X)"s", lastname);
     
     void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, rm_ptr_c);
     
-    if(found_rm_item_ptr){
-        struct Room * room = OC_get_data_ptr(found_rm_item_ptr);
-        
-        if(meeting_input_result(scan_meeting_time, meeting_time) && (scan_lastname > 0) ){
-            struct Meeting* found_meeting = find_Room_Meeting(room, meeting_time);
-            if (found_meeting) {
-                void* found_ppl_item_ptr = OC_find_item_arg(ppl_ptr_c, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
-                if (!found_ppl_item_ptr) {
-                    printf("No person with that name!\n");
-                } else {
-                    struct Person* found_person = OC_get_data_ptr(found_ppl_item_ptr);
-                    if (remove_Meeting_participant(found_meeting, found_person)) {
-                        printf("Participant %s deleted\n", lastname);
-                    } else {
-                        printf("This person is not a participant in the meeting!\n");
-                    }
-                }
-                
-            }
-            
-        }
+    if(!found_rm_item_ptr){
+        return;
+    }
+    struct Room * room = OC_get_data_ptr(found_rm_item_ptr);
+    if(!meeting_input_result(scan_meeting_time, meeting_time)){
+        return;
+    }
+    struct Meeting* found_meeting = find_Room_Meeting(room, meeting_time);
+    if (!found_meeting) {
+        return;
+    }
+    void* found_ppl_item_ptr = OC_find_item_arg(ppl_ptr_c, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
+    if (!found_ppl_item_ptr) {
+        printf("No person with that name!\n");
+        return;
+    }
+    struct Person* found_person = OC_get_data_ptr(found_ppl_item_ptr);
+    if (remove_Meeting_participant(found_meeting, found_person)) {
+        printf("Participant %s deleted\n", lastname);
+    } else {
+        printf("This person is not a participant in the meeting!\n");
     }
 }
 
