@@ -32,6 +32,7 @@ struct Room* create_Room(int number) {
  Meeting list is emptied. */
 void destroy_Room(struct Room* room_ptr) {
     clear_Room(room_ptr);
+    OC_destroy_container(room_ptr->meetings);
     free(room_ptr);
     room_ptr = NULL;
 }
@@ -75,7 +76,6 @@ int remove_Room_Meeting(struct Room* room_ptr, const struct Meeting* meeting_ptr
 void clear_Room(struct Room* room_ptr) {
     OC_apply(room_ptr->meetings, (OC_apply_fp_t) destroy_Meeting);
     OC_clear(room_ptr->meetings);
-    OC_destroy_container(room_ptr->meetings);
 }
 
 /* Return a pointer to the const container of meetings for read-only iterations over the meetings. */
