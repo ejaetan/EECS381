@@ -287,15 +287,14 @@ typedef int (*OC_apply_if_fp_t) (void* data_ptr);
  If the function returns non-zero, the iteration is terminated, and that value
  returned. Otherwise, zero is returned. The contents of the container cannot be modified. */
 int OC_apply_if(const struct Ordered_container* c_ptr, OC_apply_if_fp_t afp) {
+    int result = -1;
     if (c_ptr) {
         struct LL_Node* current_node = c_ptr->first;
-        int result = -1;
         while(current_node && ((result = afp(current_node->data_ptr) == 0))) {
             current_node = current_node->next;
         }
-        return result;
     }
-    return -1;
+    return result;
 }
 
 /* Type of a function used by OC_apply_arg.
@@ -333,21 +332,19 @@ typedef int (*OC_apply_if_arg_fp_t) (void* data_ptr, void* arg_ptr);
  If the function returns non-zero, the iteration is terminated, and that value
  returned. Otherwise, zero is returned. The contents of the container cannot be modified */
 int OC_apply_if_arg(const struct Ordered_container* c_ptr, OC_apply_if_arg_fp_t afp, void* arg_ptr) {
+    int result = -1;
     if (c_ptr) {
         struct LL_Node* current_node = c_ptr->first;
-        int result = -1;
         while(current_node && ((result = afp(current_node->data_ptr, arg_ptr) == 0))) {
             current_node = current_node->next;
         }
-        return result;
     }
-    return -1;
+    return result;
 }
 
 
 /* helper function */
 void print_container(const struct Ordered_container* c_ptr);
-
 
 void print_container(const struct Ordered_container* c_ptr) {
     struct LL_Node* current_node = c_ptr->first;

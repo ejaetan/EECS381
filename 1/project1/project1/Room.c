@@ -79,7 +79,9 @@ void clear_Room(struct Room* room_ptr) {
 }
 
 /* Return a pointer to the const container of meetings for read-only iterations over the meetings. */
-const struct Ordered_container* get_Room_Meetings(const struct Room* room_ptr);
+const struct Ordered_container* get_Room_Meetings(const struct Room* room_ptr) {
+    return room_ptr->meetings;
+}
 
 /* Print the data in a struct Room. */
 void print_Room(const struct Room* room_ptr) {
