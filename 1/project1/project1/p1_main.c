@@ -21,22 +21,22 @@
 
 /* function prototypes */
 /* add functions */
-void add_individual(struct Ordered_container* c_ptr);
-void add_room(struct Ordered_container* c_ptr);
-void add_meeting(struct Ordered_container* c_ptr);
-void add_participant(struct Ordered_container* rm_ptr, struct Ordered_container* ppl_ptr);
+void add_individual(struct Ordered_container* ppl_ptr_c);
+void add_room(struct Ordered_container* rm_ptr_c);
+void add_meeting(struct Ordered_container* rm_ptr_c);
+void add_participant(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c);
 
 /* print functions */
-void print_group(struct Ordered_container* c_ptr);
-void print_individual(struct Ordered_container* c_ptr);
-void print_room_m(struct Ordered_container* c_ptr);
-void print_meeting_m(struct Ordered_container* c_ptr);
-void print_schedule(struct Ordered_container* c_ptr);
-void print_allocation(struct Ordered_container* rm_ptr, struct Ordered_container* ppl_ptr);
+void print_group(struct Ordered_container* ppl_ptr_c);
+void print_individual(struct Ordered_container* ppl_ptr_c);
+void print_room_m(struct Ordered_container* rm_ptr_c);
+void print_meeting_m(struct Ordered_container* rm_ptr_c);
+void print_schedule(struct Ordered_container* rm_ptr_c);
+void print_allocation(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c);
 
 /* delete functions */
-void delete_individual(struct Ordered_container* c_ptr);
-void delete_meeting(struct Ordered_container* c_ptr);
+void delete_individual(struct Ordered_container* ppl_ptr_c);
+void delete_meeting(struct Ordered_container* rm_ptr_c);
 void delete_participant(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c);
 void delete_room(struct Ordered_container* rm_ptr_c);
 void delete_schedule(struct Ordered_container* rm_ptr_c);
@@ -146,7 +146,7 @@ int main() {
 
 /* function definition */
 /* add functions */
-void add_individual(struct Ordered_container* c_ptr) {
+void add_individual(struct Ordered_container* ppl_ptr_c) {
     char firstname[MAX_CHAR], lastname[MAX_CHAR], phoneno[MAX_CHAR];
     
     
@@ -157,9 +157,9 @@ void add_individual(struct Ordered_container* c_ptr) {
     if (scan_firstname > 0 && scan_lastname > 0 && scan_phoneno) {
         struct Person *new_person = create_Person(firstname, lastname, phoneno);
         
-        void* found_item_ptr = OC_find_item_arg(c_ptr, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
+        void* found_item_ptr = OC_find_item_arg(ppl_ptr_c, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
         if (!found_item_ptr) {
-            OC_insert(c_ptr, new_person);
+            OC_insert(ppl_ptr_c, new_person);
             printf("Person %s added\n", lastname);
         } else {
             printf("There is already a person with this last name!\n");
@@ -171,14 +171,14 @@ void add_individual(struct Ordered_container* c_ptr) {
 }
 
 
-void add_room(struct Ordered_container* c_ptr) {
+void add_room(struct Ordered_container* rm_ptr_c) {
     int room_num = -1;
     int scan_room_num = scanf(" %d", &room_num);
-    void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, c_ptr);
+    void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, rm_ptr_c);
     
     if(!found_rm_item_ptr) {
         struct Room *new_room = create_Room(room_num);
-        OC_insert(c_ptr, new_room);
+        OC_insert(rm_ptr_c, new_room);
         printf("Room %d added\n", room_num);
     } else {
         printf("There is already a room with this number!\n");
@@ -186,7 +186,7 @@ void add_room(struct Ordered_container* c_ptr) {
     
 }
 
-void add_meeting(struct Ordered_container* c_ptr) {
+void add_meeting(struct Ordered_container* rm_ptr_c) {
     int room_num = -1, meeting_time = -1;
     int scan_room_num = scanf("%d", &room_num);
     int scan_meeting_time = scanf("%d", &meeting_time);
@@ -194,7 +194,7 @@ void add_meeting(struct Ordered_container* c_ptr) {
     char topic[MAX_CHAR];
     int scan_topic = scanf(" %"STR(X)"s", topic);
     
-    void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, c_ptr);
+    void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, rm_ptr_c);
     if(found_rm_item_ptr) {
         struct Room * room = OC_get_data_ptr(found_rm_item_ptr);
         
@@ -212,7 +212,7 @@ void add_meeting(struct Ordered_container* c_ptr) {
     
 }
 
-void add_participant(struct Ordered_container* rm_ptr, struct Ordered_container* ppl_ptr) {
+void add_participant(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c) {
     int room_num = -1, meeting_time = -1;
     int scan_room_num = scanf("%d", &room_num);
     int scan_meeting_time = scanf("%d", &meeting_time);
@@ -220,7 +220,7 @@ void add_participant(struct Ordered_container* rm_ptr, struct Ordered_container*
     char lastname[MAX_CHAR];
     int scan_lastname = scanf(" %"STR(X)"s", lastname);
     
-    void* found_item_ptr = rm_input_result(scan_room_num, room_num, rm_ptr);
+    void* found_item_ptr = rm_input_result(scan_room_num, room_num, rm_ptr_c);
     
     if(found_item_ptr){
         struct Room * room = OC_get_data_ptr(found_item_ptr);
@@ -228,7 +228,7 @@ void add_participant(struct Ordered_container* rm_ptr, struct Ordered_container*
         if(meeting_input_result(scan_meeting_time, meeting_time) && (scan_lastname > 0) ){
             struct Meeting* found_meeting = find_Room_Meeting(room, meeting_time);
             if (found_meeting) {
-                void* found_ppl_item_ptr = OC_find_item_arg(ppl_ptr, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
+                void* found_ppl_item_ptr = OC_find_item_arg(ppl_ptr_c, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
                 if (!found_ppl_item_ptr) {
                     printf("No person with that name!\n");
                 } else {
@@ -248,12 +248,12 @@ void add_participant(struct Ordered_container* rm_ptr, struct Ordered_container*
 }
 
 /* print functions */
-void print_individual(struct Ordered_container* c_ptr) {
+void print_individual(struct Ordered_container* ppl_ptr_c) {
     char lastname[MAX_CHAR];
     
     int scan_lastname = scanf(" %"STR(X)"s", lastname);
     if (scan_lastname > 0) {
-        void* found_item_ptr = OC_find_item_arg(c_ptr, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
+        void* found_item_ptr = OC_find_item_arg(ppl_ptr_c, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
         if (found_item_ptr) {
             print_Person(OC_get_data_ptr(found_item_ptr));
         } else {
@@ -262,20 +262,20 @@ void print_individual(struct Ordered_container* c_ptr) {
     }
 }
 
-void print_group(struct Ordered_container* c_ptr) {
-    if (!OC_empty(c_ptr)) {
-        printf("Information for %d people:\n", OC_get_size(c_ptr));
-        OC_apply(c_ptr, (OC_apply_fp_t) print_Person);
+void print_group(struct Ordered_container* ppl_ptr_c) {
+    if (!OC_empty(ppl_ptr_c)) {
+        printf("Information for %d people:\n", OC_get_size(ppl_ptr_c));
+        OC_apply(ppl_ptr_c, (OC_apply_fp_t) print_Person);
     } else {
         printf("List of people is empty\n");
     }
     
 }
 
-void print_room_m(struct Ordered_container* c_ptr) {
+void print_room_m(struct Ordered_container* rm_ptr_c) {
     int room_num = -1;
     int scan_room_num = scanf(" %d", &room_num);
-    void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, c_ptr);
+    void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, rm_ptr_c);
     
     if(!found_rm_item_ptr) {
         printf("No room with that number!\n");
@@ -285,12 +285,12 @@ void print_room_m(struct Ordered_container* c_ptr) {
     }
 }
 
-void print_meeting_m(struct Ordered_container* c_ptr) {
+void print_meeting_m(struct Ordered_container* rm_ptr_c) {
     int room_num = -1, meeting_time = -1;
     int scan_room_num = scanf("%d", &room_num);
     int scan_meeting_time = scanf("%d", &meeting_time);
     
-    void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, c_ptr);
+    void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, rm_ptr_c);
     
     if(!found_rm_item_ptr) {
         printf("No room with that number!\n");
@@ -309,22 +309,22 @@ void print_meeting_m(struct Ordered_container* c_ptr) {
     }
 }
 
-void print_schedule(struct Ordered_container* c_ptr) {
-    if (!OC_empty(c_ptr)) {
-        int rm_c_size = OC_get_size(c_ptr);
+void print_schedule(struct Ordered_container* rm_ptr_c) {
+    if (!OC_empty(rm_ptr_c)) {
+        int rm_c_size = OC_get_size(rm_ptr_c);
         printf("Information for %d rooms:\n", rm_c_size);
-        OC_apply(c_ptr, (OC_apply_fp_t) print_Room);
+        OC_apply(rm_ptr_c, (OC_apply_fp_t) print_Room);
     } else {
         printf("List of rooms is empty\n");
     }
 }
 
-void print_allocation(struct Ordered_container* rm_ptr, struct Ordered_container* ppl_ptr) {
+void print_allocation(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c) {
     printf("Memory allocations:\n");
     printf("C-strings: %d bytes total\n", g_string_memory);
-    printf("Person structs: %d\n", OC_get_size(ppl_ptr));
+    printf("Person structs: %d\n", OC_get_size(ppl_ptr_c));
     printf("Meeting structs: %d\n", g_Meeting_memory);
-    printf("Room structs: %d\n", OC_get_size(rm_ptr));
+    printf("Room structs: %d\n", OC_get_size(rm_ptr_c));
     printf("Containers: %d\n", g_Container_count);
     printf("Container items in use: %d\n", g_Container_items_in_use);
     printf("Container items allocated: %d\n", g_Container_items_allocated);
@@ -332,29 +332,28 @@ void print_allocation(struct Ordered_container* rm_ptr, struct Ordered_container
 
 
 /* delete functions */
-void delete_individual(struct Ordered_container* c_ptr) {
+void delete_individual(struct Ordered_container* ppl_ptr_c) {
     char lastname[MAX_CHAR];
     
     int scan_lastname = scanf(" %"STR(X)"s", lastname);
     if (scan_lastname > 0) {
-        void* found_item_ptr = OC_find_item_arg(c_ptr, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
+        void* found_item_ptr = OC_find_item_arg(ppl_ptr_c, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
         if (found_item_ptr) {
             struct Person* person = OC_get_data_ptr(found_item_ptr);
             printf("Person %s deleted\n", get_Person_lastname(person));
             destroy_Person(person);
-            OC_delete_item(c_ptr, found_item_ptr);
-            
+            OC_delete_item(ppl_ptr_c, found_item_ptr);
         }
     }
     
 }
 
-void delete_meeting(struct Ordered_container* c_ptr) {
+void delete_meeting(struct Ordered_container* rm_ptr_c) {
     int room_num = -1, meeting_time = -1;
     int scan_room_num = scanf("%d", &room_num);
     int scan_meeting_time = scanf("%d", &meeting_time);
     
-    void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, c_ptr);
+    void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, rm_ptr_c);
     
     if(!found_rm_item_ptr) {
         printf("No room with that number!\n");
