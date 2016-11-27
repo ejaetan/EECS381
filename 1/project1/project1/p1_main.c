@@ -358,21 +358,23 @@ void delete_meeting(struct Ordered_container* c_ptr) {
     
     if(!found_rm_item_ptr) {
         printf("No room with that number!\n");
-    } else {
-        struct Room* room_ptr = OC_get_data_ptr(found_rm_item_ptr);
-        if(meeting_input_result(scan_meeting_time, meeting_time) ){
-            struct Meeting* meeting_ptr = find_Room_Meeting(room_ptr, meeting_time);
-            if (!meeting_ptr) {
-                printf("No meeting at that time!\n");
-            } else {
-                remove_Room_Meeting(room_ptr, meeting_ptr);
-                destroy_Meeting(meeting_ptr);
-                printf("Meeting at %d deleted\n", meeting_time);
-            }
-            
+        return;
+    }
+    
+    struct Room* room_ptr = OC_get_data_ptr(found_rm_item_ptr);
+    if(meeting_input_result(scan_meeting_time, meeting_time) ){
+        struct Meeting* meeting_ptr = find_Room_Meeting(room_ptr, meeting_time);
+        if (!meeting_ptr) {
+            printf("No meeting at that time!\n");
+        } else {
+            remove_Room_Meeting(room_ptr, meeting_ptr);
+            destroy_Meeting(meeting_ptr);
+            printf("Meeting at %d deleted\n", meeting_time);
         }
         
     }
+        
+    
 }
 
 void delete_participant(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c) {
@@ -383,10 +385,10 @@ void delete_participant(struct Ordered_container* rm_ptr_c, struct Ordered_conta
     char lastname[MAX_CHAR];
     int scan_lastname = scanf(" %"STR(X)"s", lastname);
     
-    void* found_item_ptr = rm_input_result(scan_room_num, room_num, rm_ptr_c);
+    void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, rm_ptr_c);
     
-    if(found_item_ptr){
-        struct Room * room = OC_get_data_ptr(found_item_ptr);
+    if(found_rm_item_ptr){
+        struct Room * room = OC_get_data_ptr(found_rm_item_ptr);
         
         if(meeting_input_result(scan_meeting_time, meeting_time) && (scan_lastname > 0) ){
             struct Meeting* found_meeting = find_Room_Meeting(room, meeting_time);

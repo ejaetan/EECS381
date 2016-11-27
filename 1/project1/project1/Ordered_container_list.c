@@ -221,10 +221,13 @@ int OC_insert(struct Ordered_container* c_ptr, const void* data_ptr) {
  NULL is returned if no matching item is found.
  The pointed-to data will not be modified. */
 void* OC_find_item(const struct Ordered_container* c_ptr, const void* data_ptr) {
-    struct LL_Node* current_node = c_ptr->first;
-    int found = OC_equals_or_just_over(c_ptr, data_ptr, c_ptr->comp_func, &current_node);
-    
-    return (!found) ? current_node : NULL;
+    if (c_ptr) {
+        struct LL_Node* current_node = c_ptr->first;
+        int found = OC_equals_or_just_over(c_ptr, data_ptr, c_ptr->comp_func, &current_node);
+        
+        return (!found) ? current_node : NULL;
+    }
+    return NULL;
 }
 
 /* typedef for a function used by OC_find_item_arg. The function returns negative, 0, or positive,
@@ -242,10 +245,13 @@ typedef int (*OC_find_item_arg_fp_t) (const void* arg_ptr, const void* data_ptr)
  with the ordering produced by the comparison function specified when the container was created;
  if not, the result is undefined. */
 void* OC_find_item_arg(const struct Ordered_container* c_ptr, const void* arg_ptr, OC_find_item_arg_fp_t fafp) {
-    struct LL_Node* current_node = c_ptr->first;
-    int found = OC_equals_or_just_over(c_ptr, arg_ptr, fafp, &current_node);
-    
-    return (!found) ? current_node : NULL;
+    if (c_ptr) {
+        struct LL_Node* current_node = c_ptr->first;
+        int found = OC_equals_or_just_over(c_ptr, arg_ptr, fafp, &current_node);
+        
+        return (!found) ? current_node : NULL;
+    }
+    return NULL;
 }
 
 
@@ -261,13 +267,14 @@ typedef void (*OC_apply_fp_t) (void* data_ptr);
 /* Apply the supplied function to the data pointer in each item of the container.
  The contents of the container cannot be modified. */
 void OC_apply(const struct Ordered_container* c_ptr, OC_apply_fp_t afp) {
-    struct LL_Node* current_node = c_ptr->first;
-    
-    while(current_node) {
-        afp(current_node->data_ptr);
-        current_node = current_node->next;
+    if (c_ptr) {
+        struct LL_Node* current_node = c_ptr->first;
+        
+        while(current_node) {
+            afp(current_node->data_ptr);
+            current_node = current_node->next;
+        }
     }
-    
 }
 
 /* Type of a function used by OC_apply_if.
@@ -280,12 +287,15 @@ typedef int (*OC_apply_if_fp_t) (void* data_ptr);
  If the function returns non-zero, the iteration is terminated, and that value
  returned. Otherwise, zero is returned. The contents of the container cannot be modified. */
 int OC_apply_if(const struct Ordered_container* c_ptr, OC_apply_if_fp_t afp) {
-    struct LL_Node* current_node = c_ptr->first;
-    int result = -1;
-    while(current_node && ((result = afp(current_node->data_ptr) == 0))) {
-        current_node = current_node->next;
+    if (c_ptr) {
+        struct LL_Node* current_node = c_ptr->first;
+        int result = -1;
+        while(current_node && ((result = afp(current_node->data_ptr) == 0))) {
+            current_node = current_node->next;
+        }
+        return result;
     }
-    return result;
+    return -1;
 }
 
 /* Type of a function used by OC_apply_arg.
@@ -300,11 +310,13 @@ typedef void (*OC_apply_arg_fp_t) (void* data_ptr, void* arg_ptr);
  the function takes a second argument, which is the supplied void pointer.
  The contents of the container cannot be modified. */
 void OC_apply_arg(const struct Ordered_container* c_ptr, OC_apply_arg_fp_t afp, void* arg_ptr) {
-    struct LL_Node* current_node = c_ptr->first;
-    
-    while(current_node) {
-        afp(current_node->data_ptr, arg_ptr);
-        current_node = current_node->next;
+    if (c_ptr) {
+        struct LL_Node* current_node = c_ptr->first;
+        
+        while(current_node) {
+            afp(current_node->data_ptr, arg_ptr);
+            current_node = current_node->next;
+        }
     }
 }
 
@@ -321,12 +333,15 @@ typedef int (*OC_apply_if_arg_fp_t) (void* data_ptr, void* arg_ptr);
  If the function returns non-zero, the iteration is terminated, and that value
  returned. Otherwise, zero is returned. The contents of the container cannot be modified */
 int OC_apply_if_arg(const struct Ordered_container* c_ptr, OC_apply_if_arg_fp_t afp, void* arg_ptr) {
-    struct LL_Node* current_node = c_ptr->first;
-    int result = -1;
-    while(current_node && ((result = afp(current_node->data_ptr, arg_ptr) == 0))) {
-        current_node = current_node->next;
+    if (c_ptr) {
+        struct LL_Node* current_node = c_ptr->first;
+        int result = -1;
+        while(current_node && ((result = afp(current_node->data_ptr, arg_ptr) == 0))) {
+            current_node = current_node->next;
+        }
+        return result;
     }
-    return result;
+    return -1;
 }
 
 
