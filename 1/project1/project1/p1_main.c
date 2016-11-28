@@ -41,6 +41,7 @@ void delete_participant(struct Ordered_container* rm_ptr_c, struct Ordered_conta
 void delete_room(struct Ordered_container* rm_ptr_c);
 void delete_schedule(struct Ordered_container* rm_ptr_c);
 void delete_group(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c);
+void delete_all(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c);
 
 /* helper function protypes */
 void skip_type_ahead(void);
@@ -104,6 +105,9 @@ int main() {
                             break;
                         case 'g':
                             delete_group(room_list, people_list);
+                            break;
+                        case 'a':
+                            delete_all(room_list, people_list);
                             break;
                         default:
                             printf("Unrecognized command\n");
@@ -452,8 +456,6 @@ void delete_schedule(struct Ordered_container* rm_ptr_c) {
 }
 
 
-
-
 void delete_group(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c) {
     int has_meeting = OC_apply_if(rm_ptr_c, (OC_apply_if_fp_t) loop_into_meeting_dg);
     if (has_meeting > 0) {
@@ -462,7 +464,18 @@ void delete_group(struct Ordered_container* rm_ptr_c, struct Ordered_container* 
     }
     OC_apply(ppl_ptr_c, (OC_apply_fp_t) destroy_Person);
     OC_clear(ppl_ptr_c);
+    printf("All persons deleted\n");
 }
+
+void delete_all(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c) {
+    OC_apply(rm_ptr_c, (OC_apply_fp_t) destroy_Room);
+    OC_clear(rm_ptr_c);
+    printf("All rooms and meetings deleted\n");
+    OC_apply(ppl_ptr_c, (OC_apply_fp_t) destroy_Person);
+    OC_clear(ppl_ptr_c);
+    printf("All persons deleted\n");
+}
+
 
 /* helper function defintion */
 void skip_type_ahead(void) {
