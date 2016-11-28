@@ -7,6 +7,7 @@
 //
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include "Ordered_container.h"
@@ -42,6 +43,12 @@ void delete_room(struct Ordered_container* rm_ptr_c);
 void delete_schedule(struct Ordered_container* rm_ptr_c);
 void delete_group(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c);
 void delete_all(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c);
+
+/* quit program function */
+void quit_program(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c);
+
+/* reschedule meeting function */
+void reschedule_meeting(struct Ordered_container* rm_ptr_c);
 
 /* helper function protypes */
 void skip_type_ahead(void);
@@ -141,6 +148,26 @@ int main() {
                             break;
                     }
                     break;  // break for command1 'p'
+                case 'q':
+                    switch (command2) {
+                        case 'q':
+                            quit_program(room_list, people_list);
+                            return EXIT_SUCCESS;
+                            break;
+                            
+                        default:
+                            break;
+                    }
+                    break; // break for command1 'q'
+                case 'r':
+                    switch (command2) {
+                        case 'm':
+                            reschedule_meeting(room_list);
+                            break;
+                        default:
+                            break;
+                    }
+                    break; // break for command1 'r'
                 default:
                     printf("Unrecognized command\n");
                     skip_type_ahead();
@@ -170,6 +197,7 @@ void add_individual(struct Ordered_container* ppl_ptr_c) {
         void* found_item_ptr = OC_find_item_arg(ppl_ptr_c, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
         if (found_item_ptr) {
             printf("There is already a person with this last name!\n");
+            destroy_Person(new_person);
             return;
         }
         OC_insert(ppl_ptr_c, new_person);
@@ -476,6 +504,67 @@ void delete_all(struct Ordered_container* rm_ptr_c, struct Ordered_container* pp
     printf("All persons deleted\n");
 }
 
+/* quit program function */
+void quit_program(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c) {
+    delete_all(rm_ptr_c, ppl_ptr_c);
+    OC_destroy_container(rm_ptr_c);
+    OC_destroy_container(ppl_ptr_c);
+    printf("Done\n");
+}
+
+/* reschedule meeting function */
+void reschedule_meeting(struct Ordered_container* rm_ptr_c) {
+    int room_num1 = -1, meeting_time1 = -1;
+    int scan_room_num1 = scanf("%d", &room_num1);
+    int scan_meeting_time1 = scanf("%d", &meeting_time1);
+    void* found_rm_item_ptr1 = rm_input_result(scan_room_num1, room_num1, rm_ptr_c);
+    
+    int room_num2 = -1, meeting_time2 = -1;
+    int scan_room_num2 = scanf("%d", &room_num2);
+    int scan_meeting_time2 = scanf("%d", &meeting_time2);
+    void* found_rm_item_ptr2 = rm_input_result(scan_room_num2, room_num2, rm_ptr_c);
+    
+    if(!found_rm_item_ptr1) {
+        printf("No room %d!\n", room_num1);
+        skip_type_ahead();
+        return;
+    }
+    
+    struct Room* room_ptr1 = OC_get_data_ptr(found_rm_item_ptr1);
+    struct Room* room_ptr2 = OC_get_data_ptr(found_rm_item_ptr2);
+    if(!meeting_input_result(scan_meeting_time1, meeting_time1) ||
+       !meeting_input_result(scan_meeting_time2, meeting_time2)){
+        return;
+    }
+    
+    struct Meeting* meeting_ptr1 = find_Room_Meeting(room_ptr1, meeting_time1);
+    if (!meeting_ptr1) {
+        printf("No meeting at %d!\n", meeting_time1);
+        skip_type_ahead();
+        return;
+    }
+    
+    if(!found_rm_item_ptr2) {
+        printf("No room %d!\n", room_num2);
+        skip_type_ahead();
+        return;
+    }
+    
+    struct Meeting* meeting_ptr2 = find_Room_Meeting(room_ptr2, meeting_time2);
+    if (meeting_ptr2) {
+        printf("There is already a meeting at that %d!", meeting_time2);
+        skip_type_ahead();
+        return;
+    }
+    
+    meeting_ptr2 = meeting_ptr1;
+    remove_Room_Meeting(room_ptr1, meeting_ptr1);
+    set_Meeting_time(meeting_ptr2, meeting_time2);
+    add_Room_Meeting(room_ptr2, meeting_ptr2);
+    
+    printf("Meeting rescheduled to room %d at %d\n", room_num2, meeting_time2);
+    
+}
 
 /* helper function defintion */
 void skip_type_ahead(void) {
