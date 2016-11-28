@@ -10,6 +10,12 @@ Then delete this comment - it is not part of the finished code */
 
 #include "string.h"
 #include "Person.h"
+
+
+#define MAX_CHAR 64
+#define MAX_INPUT 63
+#define STR2(x)
+#define STR(X) STR2(X)
 /* global variable declarations for this module */
 extern int g_string_memory;				/* number of bytes used in C-strings */
 

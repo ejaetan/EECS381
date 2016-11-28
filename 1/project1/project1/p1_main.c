@@ -15,10 +15,7 @@
 #include "Meeting.h"
 #include "Utility.h"
 
-#define MAX_CHAR 64
-#define MAX_INPUT 63
-#define STR2(x)
-#define STR(X) STR2(X)
+
 
 /* function prototypes */
 /* add functions */

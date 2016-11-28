@@ -60,12 +60,16 @@ void print_Person(const struct Person* person_ptr) {
 /* Write a Person to a file stream, as a line containing
  firstname, lastname, phoneno,  whitespace-separated with a final \n character. */
 void save_Person(const struct Person* person_ptr, FILE* outfile) {
-    if (!feof(outfile)) {
-        fprintf(outfile, "%s %s %s\n", person_ptr->firstname, person_ptr->lastname, person_ptr->phoneno);
-    }
+    fprintf(outfile, "%s %s %s\n", person_ptr->firstname, person_ptr->lastname, person_ptr->phoneno);
 }
 
 /* Read a Person's data from a file stream, create the data object and
  return a pointer to it, NULL if invalid data discovered in file.
  No check made for whether the Person already exists or not. */
-struct Person* load_Person(FILE* infile);
+struct Person* load_Person(FILE* infile) {
+    char firstname[MAX_CHAR], lastname[MAX_CHAR], phoneno[MAX_CHAR];
+    fscanf(infile, " %"STR(X)"s %"STR(X)"s %"STR(X)"s\n", firstname, lastname, phoneno);
+        
+    struct Person* new_Person = create_Person(firstname, lastname, phoneno);
+    return new_Person;
+}

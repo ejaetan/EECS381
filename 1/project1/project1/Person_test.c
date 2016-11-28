@@ -22,13 +22,24 @@ int main() {
     //destroy_Person(p1);
     //printf("%s\n", get_Person_lastname(p1));
     
-    FILE *fp = fopen("person_out.txt", "w");
-    if (!fp) {
+    FILE *ofp = fopen("person_out.txt", "w");
+    if (!ofp) {
         fprintf(stderr, "Can't open file");
         exit(1);
     }
     
-    save_Person(p1, fp);
+    save_Person(p1, ofp);
+    fclose(ofp);
+    
+    FILE *ifp = fopen("person_out.txt", "r");
+    if (!ifp) {
+        fprintf(stderr, "Can't open file");
+        exit(1);
+    }
+    
+    struct Person* p2 = load_Person(ifp);
+    print_Person(p2);
+    fclose(ifp);
 }
 
 
