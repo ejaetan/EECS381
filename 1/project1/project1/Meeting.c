@@ -80,7 +80,7 @@ int remove_Meeting_participant(struct Meeting* meeting_ptr, const struct Person*
     void* found =  OC_find_item(meeting_ptr->participants, person_ptr);
     
     if (found) {
-        OC_delete_item(meeting_ptr->participants, (void*)person_ptr);
+        OC_delete_item(meeting_ptr->participants, found);
         return -1;
     }
     return 0;
@@ -95,7 +95,6 @@ void print_Meeting(const struct Meeting* meeting_ptr) {
         printf("Participants:\n");
         OC_apply(meeting_ptr->participants, (OC_apply_fp_t) print_Person);
     }
-    
 }
 
 /* Write the data in a Meeting to a file. The time is expressed in 12-hr form with no AM/PM.*/

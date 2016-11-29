@@ -410,7 +410,6 @@ void delete_individual(struct Ordered_container* rm_ptr_c, struct Ordered_contai
     }
     struct Person* person_ptr = OC_get_data_ptr(found_name_item_ptr);
 
-    
     if(!OC_apply_if_arg(rm_ptr_c, (OC_apply_if_arg_fp_t) loop_into_meeting_di, person_ptr)) {
         printf("Person %s deleted\n", get_Person_lastname(person_ptr));
         destroy_Person(person_ptr);
@@ -598,12 +597,17 @@ void save_data(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl
     OC_apply_arg(ppl_c, (OC_apply_arg_fp_t) save_Person, fp);
     fprintf(fp, "%d\n", OC_get_size(rm_ptr_c));
     OC_apply_arg(rm_ptr_c, (OC_apply_arg_fp_t) save_Room, fp);
-    
+    printf("Data saved\n");
     fclose(fp);
 }
 
 /* load data function */
 void load_data(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c) {
+    OC_apply(rm_ptr_c, (OC_apply_fp_t) destroy_Room);
+    OC_clear(rm_ptr_c);
+    OC_apply(ppl_ptr_c, (OC_apply_fp_t) destroy_Person);
+    OC_clear(ppl_ptr_c);
+    
     char filename[MAX_CHAR];
     scanf(" %"STR(X)"s", filename);
     FILE *fp = fopen(filename, "r");
@@ -627,7 +631,7 @@ void load_data(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl
         struct Room* new_room = load_Room(fp, ppl_ptr_c);
         OC_insert(rm_ptr_c, new_room);
     }
-    
+    printf("Data loaded\n");
     fclose(fp);
 }
 
