@@ -47,6 +47,9 @@ void quit_program(struct Ordered_container* rm_ptr_c, struct Ordered_container* 
 /* reschedule meeting function */
 void reschedule_meeting(struct Ordered_container* rm_ptr_c);
 
+/* save data function */
+void save_data(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c);
+
 /* helper function protypes */
 void skip_type_ahead(void);
 void* rm_input_result(int scanf_result, int scan_input, struct Ordered_container* c_ptr);
@@ -164,6 +167,16 @@ int main() {
                             break;
                     }
                     break; // break for command1 'r'
+                case 's':
+                    switch (command2) {
+                        case 'd':
+                            save_data(room_list, people_list);
+                            break;
+                            
+                        default:
+                            break;
+                    }
+                    break; // break for command1 's'
                 default:
                     printf("Unrecognized command\n");
                     skip_type_ahead();
@@ -560,6 +573,22 @@ void reschedule_meeting(struct Ordered_container* rm_ptr_c) {
     
     printf("Meeting rescheduled to room %d at %d\n", room_num2, meeting_time2);
     
+}
+
+/* save data function */
+void save_data(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_c) {
+    char filename[MAX_CHAR];
+    scanf(" %"STR(X)"s", filename);
+    FILE * fp = fopen("test_save.txt", "w");
+    if (!fp ){
+        fprintf(stderr, "Can't open file");
+    }
+    fprintf(fp, "%d\n", OC_get_size(ppl_c));
+    OC_apply_arg(ppl_c, (OC_apply_arg_fp_t) save_Person, fp);
+    fprintf(fp, "%d\n", OC_get_size(rm_ptr_c));
+    OC_apply_arg(rm_ptr_c, (OC_apply_arg_fp_t) save_Room, fp);
+    
+    fclose(fp);
 }
 
 /* helper function defintion */
