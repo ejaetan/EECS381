@@ -50,6 +50,9 @@ void reschedule_meeting(struct Ordered_container* rm_ptr_c);
 /* save data function */
 void save_data(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c);
 
+/* load data function */
+void load_data(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c);
+
 /* helper function protypes */
 void skip_type_ahead(void);
 void* rm_input_result(int scanf_result, int scan_input, struct Ordered_container* c_ptr);
@@ -172,11 +175,19 @@ int main() {
                         case 'd':
                             save_data(room_list, people_list);
                             break;
-                            
                         default:
                             break;
                     }
                     break; // break for command1 's'
+                case 'l':
+                    switch (command2) {
+                        case 'd':
+                            load_data(room_list, people_list);
+                            break;
+                        default:
+                            break;
+                    }
+                    break; // break for command1 'd'
                 default:
                     printf("Unrecognized command\n");
                     skip_type_ahead();
@@ -579,7 +590,7 @@ void reschedule_meeting(struct Ordered_container* rm_ptr_c) {
 void save_data(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_c) {
     char filename[MAX_CHAR];
     scanf(" %"STR(X)"s", filename);
-    FILE * fp = fopen("test_save.txt", "w");
+    FILE * fp = fopen(filename, "w");
     if (!fp ){
         fprintf(stderr, "Can't open file");
     }
@@ -587,6 +598,35 @@ void save_data(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl
     OC_apply_arg(ppl_c, (OC_apply_arg_fp_t) save_Person, fp);
     fprintf(fp, "%d\n", OC_get_size(rm_ptr_c));
     OC_apply_arg(rm_ptr_c, (OC_apply_arg_fp_t) save_Room, fp);
+    
+    fclose(fp);
+}
+
+/* load data function */
+void load_data(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl_ptr_c) {
+    char filename[MAX_CHAR];
+    scanf(" %"STR(X)"s", filename);
+    FILE *fp = fopen(filename, "r");
+    
+    if (!fp ){
+        fprintf(stderr, "Can't open file");
+    }
+    
+    int total_person = 0;
+    fscanf(fp, "%d\n", &total_person);
+    
+    for (; total_person > 0; total_person--) {
+        struct Person* new_person = load_Person(fp);
+        OC_insert(ppl_ptr_c, new_person);
+    }
+    
+    int total_rooms = 0;
+    fscanf(fp, "%d\n", &total_rooms);
+    
+    for (; total_rooms; total_rooms--) {
+        struct Room* new_room = load_Room(fp, ppl_ptr_c);
+        OC_insert(rm_ptr_c, new_room);
+    }
     
     fclose(fp);
 }
