@@ -24,6 +24,7 @@ int main() {
     add_Meeting_participant(meeting1, person3);
     print_Meeting(meeting1);
     
+    /*
     printf("%d\n", is_Meeting_participant_present(meeting1, person4));
     printf("%d\n", is_Meeting_participant_present(meeting1, person3));
     
@@ -38,6 +39,13 @@ int main() {
     destroy_Meeting(meeting1);
     print_Meeting(meeting1);
     
+    */
+    FILE *ofp = fopen("meeting_out.txt", "w");
+    if (!ofp) {
+        fprintf(stderr, "Can't open file");
+        exit(1);
+    }
+    save_Meeting(meeting1, ofp);
     
 }
 

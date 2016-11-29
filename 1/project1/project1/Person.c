@@ -60,7 +60,8 @@ void print_Person(const struct Person* person_ptr) {
 /* Write a Person to a file stream, as a line containing
  firstname, lastname, phoneno,  whitespace-separated with a final \n character. */
 void save_Person(const struct Person* person_ptr, FILE* outfile) {
-    fprintf(outfile, "%s %s %s\n", person_ptr->firstname, person_ptr->lastname, person_ptr->phoneno);
+    fprintf(outfile, "%s %s %s\n",
+            person_ptr->firstname, person_ptr->lastname, person_ptr->phoneno);
 }
 
 /* Read a Person's data from a file stream, create the data object and

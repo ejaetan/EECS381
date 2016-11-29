@@ -2,6 +2,11 @@
 #include "Meeting.h"
 #include "Utility.h"
 #include <stdlib.h>
+#include <stdio.h>
+
+/* helper function */
+void print_person_lastname(struct Person* person_ptr, FILE* outfile);
+
 /* a Meeting contains a time, a topic, and a container of participants */
 struct Meeting {
 	char* topic;
@@ -90,12 +95,27 @@ void print_Meeting(const struct Meeting* meeting_ptr) {
         printf("Participants:\n");
         OC_apply(meeting_ptr->participants, (OC_apply_fp_t) print_Person);
     }
-
-    
     
 }
 
+/* Write the data in a Meeting to a file. The time is expressed in 12-hr form with no AM/PM.*/
+void save_Meeting(const struct Meeting* meeting_ptr, FILE* outfile) {
+    int total_participants = OC_get_size(meeting_ptr->participants);
+    fprintf(outfile, "%d %s %d\n",
+            meeting_ptr->time, meeting_ptr->topic, total_participants);
+    if (total_participants > 0) {
+        OC_apply_arg(meeting_ptr->participants, (OC_apply_arg_fp_t) print_person_lastname, outfile);
+    }
+    
+}
+
+/* Read a Meeting's data from a file stream, create the data object and
+ return a pointer to it, NULL if invalid data discovered in file.
+ No check made for whether the Meeting already exists or not. The time is expressed in 12-hr form with no AM/PM.*/
+struct Meeting* load_Meeting(FILE* input_file, const struct Ordered_container* people);
 
 
-
-
+/* helper function */
+void print_person_lastname(struct Person* person_ptr, FILE* outfile) {
+    fprintf(outfile, "%s\n", get_Person_lastname(person_ptr));
+}
