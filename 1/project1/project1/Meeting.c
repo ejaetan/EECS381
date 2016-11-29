@@ -103,9 +103,9 @@ void save_Meeting(const struct Meeting* meeting_ptr, FILE* outfile) {
     int total_participants = OC_get_size(meeting_ptr->participants);
     fprintf(outfile, "%d %s %d\n",
             meeting_ptr->time, meeting_ptr->topic, total_participants);
-    if (total_participants > 0) {
-        OC_apply_arg(meeting_ptr->participants, (OC_apply_arg_fp_t) print_person_lastname, outfile);
-    }
+    OC_apply_arg(meeting_ptr->participants,
+                 (OC_apply_arg_fp_t) print_person_lastname, outfile);
+    
     
 }
 
@@ -116,7 +116,7 @@ struct Meeting* load_Meeting(FILE* input_file, const struct Ordered_container* p
     char topic[MAX_CHAR];
     int meeting_time = 0;
     int total_participants = 0;
-    fscanf(input_file, " %d %"STR(X)"s %d\n", &meeting_time, topic, &total_participants);
+    fscanf(input_file, "%d %"STR(X)"s %d\n", &meeting_time, topic, &total_participants);
     struct Meeting* new_meeting = create_Meeting(meeting_time, topic);
     while (total_participants > 0) {
         char lastname[MAX_CHAR];

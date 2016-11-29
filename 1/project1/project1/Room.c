@@ -91,13 +91,31 @@ void print_Room(const struct Room* room_ptr) {
     } else {
         printf("No meetings are scheduled\n");
     }
-    
-    
+}
+
+/* Write the room data to a file. */
+void save_Room(const struct Room* room_ptr, FILE* outfile) {
+    int total_meetings = OC_get_size(room_ptr->meetings);
+    fprintf(outfile, "%d %d\n", room_ptr->number, total_meetings);
+    OC_apply_arg(room_ptr->meetings, (OC_apply_arg_fp_t) save_Meeting, outfile);
+}
+
+/* Read a room's data from a file stream, create the data object and
+ return a pointer to it, NULL if invalid data discovered in file.
+ No check made for whether the room already exists or not. */
+struct Room* load_Room(FILE* infile, const struct Ordered_container* people) {
+    int rm_num, total_meetings;
+    fscanf(infile, "%d %d\n", &rm_num, &total_meetings);
+    struct Room* new_room = create_Room(rm_num);
+    while (total_meetings > 0) {
+        struct Meeting* new_meeting = load_Meeting(infile, people);
+        add_Room_Meeting(new_room, new_meeting);
+        total_meetings--;
+    }
+    return new_room;
 }
 
 /* Helper function */
-
-
 int cmp_meeting_time(struct Meeting* meeting_ptr1, struct Meeting* meeting_ptr2) {
     return convert_time(get_Meeting_time(meeting_ptr1)) - convert_time(get_Meeting_time(meeting_ptr2));
 }
