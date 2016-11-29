@@ -24,3 +24,4 @@ extern int g_string_memory;				/* number of bytes used in C-strings */
 void* malloc_with_error_handling(size_t size);
 int cmp_person_lastname(struct Person* person1, struct Person* person2);
 int convert_time(int a);
+int cmp_person_lastname_arg(char *lastname, struct Person * person_ptr);

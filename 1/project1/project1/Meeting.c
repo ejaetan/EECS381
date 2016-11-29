@@ -112,7 +112,24 @@ void save_Meeting(const struct Meeting* meeting_ptr, FILE* outfile) {
 /* Read a Meeting's data from a file stream, create the data object and
  return a pointer to it, NULL if invalid data discovered in file.
  No check made for whether the Meeting already exists or not. The time is expressed in 12-hr form with no AM/PM.*/
-struct Meeting* load_Meeting(FILE* input_file, const struct Ordered_container* people);
+struct Meeting* load_Meeting(FILE* input_file, const struct Ordered_container* people) {
+    char topic[MAX_CHAR];
+    int meeting_time = 0;
+    int total_participants = 0;
+    fscanf(input_file, " %d %"STR(X)"s %d\n", &meeting_time, topic, &total_participants);
+    struct Meeting* new_meeting = create_Meeting(meeting_time, topic);
+    while (total_participants > 0) {
+        char lastname[MAX_CHAR];
+        fscanf(input_file, " %"STR(X)"s\n", lastname);
+        void* found_item_ptr = OC_find_item_arg(people, lastname, (OC_find_item_arg_fp_t) cmp_person_lastname_arg);
+        if (found_item_ptr) {
+            struct Person* new_person = OC_get_data_ptr(found_item_ptr);
+            add_Meeting_participant(new_meeting, new_person);
+        }
+        total_participants--;
+    }
+    return new_meeting;
+}
 
 
 /* helper function */

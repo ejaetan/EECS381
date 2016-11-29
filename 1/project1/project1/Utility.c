@@ -40,3 +40,8 @@ int convert_time(int a) {
     }
     return a;
 }
+
+/*  Meeting.c and p1_main.c */
+int cmp_person_lastname_arg(char *lastname, struct Person * person_ptr) {
+    return strcmp(lastname, get_Person_lastname(person_ptr));
+}

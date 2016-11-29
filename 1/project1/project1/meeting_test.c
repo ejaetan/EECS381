@@ -47,5 +47,6 @@ int main() {
     }
     save_Meeting(meeting1, ofp);
     
+
 }
 

@@ -51,7 +51,6 @@ void reschedule_meeting(struct Ordered_container* rm_ptr_c);
 void skip_type_ahead(void);
 void* rm_input_result(int scanf_result, int scan_input, struct Ordered_container* c_ptr);
 int meeting_input_result(int scanf_result, int scan_input);
-int cmp_person_lastname_arg(char *lastname, struct Person * person_ptr);
 int cmp_room_num(const struct Room *rm_ptr1, const struct Room *rm_ptr2);
 int cmp_room_num_arg(void* given_num, struct Room * room_ptr);
 int loop_into_meeting_di(void* data_ptr, void* arg_ptr);
@@ -600,9 +599,6 @@ int meeting_input_result(int scanf_result, int scan_input) {
     return 1;
 }
 
-int cmp_person_lastname_arg(char *lastname, struct Person * person_ptr) {
-    return strcmp(lastname, get_Person_lastname(person_ptr));
-}
 
 int cmp_room_num(const struct Room *rm_ptr1, const struct Room *rm_ptr2) {
     return get_Room_number(rm_ptr1) - get_Room_number(rm_ptr2);
