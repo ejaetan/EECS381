@@ -106,6 +106,7 @@ void save_Room(const struct Room* room_ptr, FILE* outfile) {
 struct Room* load_Room(FILE* infile, const struct Ordered_container* people) {
     int rm_num, total_meetings;
     fscanf(infile, "%d %d\n", &rm_num, &total_meetings);
+    
     struct Room* new_room = create_Room(rm_num);
     while (total_meetings > 0) {
         struct Meeting* new_meeting = load_Meeting(infile, people);

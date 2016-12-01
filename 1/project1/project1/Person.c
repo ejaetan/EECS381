@@ -70,7 +70,7 @@ void save_Person(const struct Person* person_ptr, FILE* outfile) {
 struct Person* load_Person(FILE* infile) {
     char firstname[MAX_CHAR], lastname[MAX_CHAR], phoneno[MAX_CHAR];
     fscanf(infile, " %"STR(X)"s %"STR(X)"s %"STR(X)"s\n", firstname, lastname, phoneno);
-        
+
     struct Person* new_Person = create_Person(firstname, lastname, phoneno);
     return new_Person;
 }

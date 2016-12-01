@@ -55,13 +55,15 @@ void load_data(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl
 
 /* helper function protypes */
 void skip_type_ahead(void);
-void* rm_input_result(int scanf_result, int scan_input, struct Ordered_container* c_ptr);
+int verify_rm_num(int scanf_result, int scan_input);
 int meeting_input_result(int scanf_result, int scan_input);
 int cmp_room_num(const struct Room *rm_ptr1, const struct Room *rm_ptr2);
 int cmp_room_num_arg(void* given_num, struct Room * room_ptr);
 int loop_into_meeting_di(void* data_ptr, void* arg_ptr);
 int loop_into_meeting_dg(void* data_ptr);
 
+/* error message */
+void unrecognized_cmd_error(void);
 
 int main() {
     struct Ordered_container* people_list = OC_create_container((OC_comp_fp_t)cmp_person_lastname);
@@ -90,8 +92,7 @@ int main() {
                             add_participant(room_list, people_list);
                             break;
                         default:
-                            printf("Unrecognized command\n");
-                            skip_type_ahead();
+                            unrecognized_cmd_error();
                             break;  // default break for command2
                     }
                     break;  //break for command1 'a'
@@ -119,8 +120,7 @@ int main() {
                             delete_all(room_list, people_list);
                             break;
                         default:
-                            printf("Unrecognized command\n");
-                            skip_type_ahead();
+                            unrecognized_cmd_error();
                             break;
                     }
                     break;
@@ -146,7 +146,7 @@ int main() {
                             print_allocation(room_list, people_list);
                             break;
                         default:
-                            skip_type_ahead();
+                            unrecognized_cmd_error();
                             break;
                     }
                     break;  // break for command1 'p'
@@ -156,8 +156,8 @@ int main() {
                             quit_program(room_list, people_list);
                             return EXIT_SUCCESS;
                             break;
-                            
                         default:
+                            unrecognized_cmd_error();
                             break;
                     }
                     break; // break for command1 'q'
@@ -167,6 +167,7 @@ int main() {
                             reschedule_meeting(room_list);
                             break;
                         default:
+                            unrecognized_cmd_error();
                             break;
                     }
                     break; // break for command1 'r'
@@ -176,6 +177,7 @@ int main() {
                             save_data(room_list, people_list);
                             break;
                         default:
+                            unrecognized_cmd_error();
                             break;
                     }
                     break; // break for command1 's'
@@ -185,17 +187,14 @@ int main() {
                             load_data(room_list, people_list);
                             break;
                         default:
+                            unrecognized_cmd_error();
                             break;
                     }
                     break; // break for command1 'd'
                 default:
-                    printf("Unrecognized command\n");
-                    skip_type_ahead();
+                    unrecognized_cmd_error();
                     break;      // default break for command1
             }
-            
-            
-            
         }
     }
     return 0;
@@ -226,11 +225,17 @@ void add_individual(struct Ordered_container* ppl_ptr_c) {
     
 }
 
-
 void add_room(struct Ordered_container* rm_ptr_c) {
     int room_num = -1;
     int scan_room_num = scanf(" %d", &room_num);
-    void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, rm_ptr_c);
+    
+    int rm_num_istrue = verify_rm_num(scan_room_num, room_num);
+    
+    if (!rm_num_istrue) {
+        return;
+    }
+    
+    void* found_rm_item_ptr = OC_find_item_arg(rm_ptr_c, &room_num, (OC_find_item_arg_fp_t) cmp_room_num_arg);
     
     if(!found_rm_item_ptr) {
         struct Room *new_room = create_Room(room_num);
@@ -251,20 +256,35 @@ void add_meeting(struct Ordered_container* rm_ptr_c) {
     char topic[MAX_CHAR];
     scanf(" %"STR(X)"s", topic);
     
-    void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, rm_ptr_c);
-    if(!found_rm_item_ptr) {
-        printf("Room %d doesn't exist!\n", room_num);
+    int rm_num_istrue = verify_rm_num(scan_room_num, room_num);
+    
+    if (!rm_num_istrue) {
+        return;
+    }
+    
+    void* found_rm_item_ptr = OC_find_item_arg(rm_ptr_c, &room_num, (OC_find_item_arg_fp_t) cmp_room_num_arg);
+    
+    if (!found_rm_item_ptr) {
+        printf("No room found\n");
         return;
     }
     
     struct Room * room = OC_get_data_ptr(found_rm_item_ptr);
     
-    if (!meeting_input_result(scan_meeting_time, meeting_time)) {
+    
+    int meeting_istrue = meeting_input_result(scan_meeting_time, meeting_time);
+    
+    if (!meeting_istrue) {
+        return;
+    }
+    
+    struct Meeting *new_meeting = find_Room_Meeting(room, meeting_time);
+    if (new_meeting) {
         printf("There is already a meeting at that time!\n");
         return;
     }
     
-    struct Meeting *new_meeting = create_Meeting(meeting_time, topic);
+    new_meeting = create_Meeting(meeting_time, topic);
     if (!add_Room_Meeting(room, new_meeting)) {
         printf("Meeting added at %d\n", meeting_time);
     }
@@ -279,13 +299,19 @@ void add_participant(struct Ordered_container* rm_ptr_c, struct Ordered_containe
     char lastname[MAX_CHAR];
     scanf(" %"STR(X)"s", lastname);
     
-    void* found_item_ptr = rm_input_result(scan_room_num, room_num, rm_ptr_c);
+    int rm_num_istrue = verify_rm_num(scan_room_num, room_num);
     
-    if(!found_item_ptr){
+    if (!rm_num_istrue) {
         return;
     }
     
-    struct Room * room = OC_get_data_ptr(found_item_ptr);
+    void* found_rm_item_ptr = OC_find_item_arg(rm_ptr_c, &room_num, (OC_find_item_arg_fp_t) cmp_room_num_arg);
+    
+    if(!found_rm_item_ptr){
+        return;
+    }
+    
+    struct Room * room = OC_get_data_ptr(found_rm_item_ptr);
     if (!meeting_input_result(scan_meeting_time, meeting_time)) {
         return;
     }
@@ -341,7 +367,13 @@ void print_group(struct Ordered_container* ppl_ptr_c) {
 void print_room_m(struct Ordered_container* rm_ptr_c) {
     int room_num = -1;
     int scan_room_num = scanf(" %d", &room_num);
-    void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, rm_ptr_c);
+    int rm_num_istrue = verify_rm_num(scan_room_num, room_num);
+    
+    if (!rm_num_istrue) {
+        return;
+    }
+    
+    void* found_rm_item_ptr = OC_find_item_arg(rm_ptr_c, &room_num, (OC_find_item_arg_fp_t) cmp_room_num_arg);
     
     if(!found_rm_item_ptr) {
         printf("No room with that number!\n");
@@ -356,7 +388,13 @@ void print_meeting_m(struct Ordered_container* rm_ptr_c) {
     int scan_room_num = scanf("%d", &room_num);
     int scan_meeting_time = scanf("%d", &meeting_time);
     
-    void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, rm_ptr_c);
+    int rm_num_istrue = verify_rm_num(scan_room_num, room_num);
+    
+    if (!rm_num_istrue) {
+        return;
+    }
+    
+    void* found_rm_item_ptr = OC_find_item_arg(rm_ptr_c, &room_num, (OC_find_item_arg_fp_t) cmp_room_num_arg);
     
     if(!found_rm_item_ptr) {
         printf("No room with that number!\n");
@@ -365,6 +403,7 @@ void print_meeting_m(struct Ordered_container* rm_ptr_c) {
     
     struct Room* room = OC_get_data_ptr(found_rm_item_ptr);
     if(!meeting_input_result(scan_meeting_time, meeting_time) ){
+        printf("There is already a meeting at that time!\n");
         return;
     }
     
@@ -425,7 +464,13 @@ void delete_meeting(struct Ordered_container* rm_ptr_c) {
     int scan_room_num = scanf("%d", &room_num);
     int scan_meeting_time = scanf("%d", &meeting_time);
     
-    void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, rm_ptr_c);
+    int rm_num_istrue = verify_rm_num(scan_room_num, room_num);
+    
+    if (!rm_num_istrue) {
+        return;
+    }
+    
+    void* found_rm_item_ptr = OC_find_item_arg(rm_ptr_c, &room_num, (OC_find_item_arg_fp_t) cmp_room_num_arg);
     
     if(!found_rm_item_ptr) {
         printf("No room with that number!\n");
@@ -456,7 +501,13 @@ void delete_participant(struct Ordered_container* rm_ptr_c, struct Ordered_conta
     char lastname[MAX_CHAR];
     scanf(" %"STR(X)"s", lastname);
     
-    void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, rm_ptr_c);
+    int rm_num_istrue = verify_rm_num(scan_room_num, room_num);
+    
+    if (!rm_num_istrue) {
+        return;
+    }
+    
+    void* found_rm_item_ptr = OC_find_item_arg(rm_ptr_c, &room_num, (OC_find_item_arg_fp_t) cmp_room_num_arg);
     
     if(!found_rm_item_ptr){
         return;
@@ -485,7 +536,13 @@ void delete_participant(struct Ordered_container* rm_ptr_c, struct Ordered_conta
 void delete_room(struct Ordered_container* rm_ptr_c) {
     int room_num = -1;
     int scan_room_num = scanf(" %d", &room_num);
-    void* found_rm_item_ptr = rm_input_result(scan_room_num, room_num, rm_ptr_c);
+    int rm_num_istrue = verify_rm_num(scan_room_num, room_num);
+    
+    if (!rm_num_istrue) {
+        return;
+    }
+    
+    void* found_rm_item_ptr = OC_find_item_arg(rm_ptr_c, &room_num, (OC_find_item_arg_fp_t) cmp_room_num_arg);
     
     if(!found_rm_item_ptr) {
         printf("No room with that number!\n");
@@ -536,12 +593,25 @@ void reschedule_meeting(struct Ordered_container* rm_ptr_c) {
     int room_num1 = -1, meeting_time1 = -1;
     int scan_room_num1 = scanf("%d", &room_num1);
     int scan_meeting_time1 = scanf("%d", &meeting_time1);
-    void* found_rm_item_ptr1 = rm_input_result(scan_room_num1, room_num1, rm_ptr_c);
+    int rm_num_istrue1 = verify_rm_num(scan_room_num1, room_num1);
+    
+    if (!rm_num_istrue1) {
+        return;
+    }
+    
+    void* found_rm_item_ptr1 = OC_find_item_arg(rm_ptr_c, &room_num1, (OC_find_item_arg_fp_t) cmp_room_num_arg);
     
     int room_num2 = -1, meeting_time2 = -1;
     int scan_room_num2 = scanf("%d", &room_num2);
     int scan_meeting_time2 = scanf("%d", &meeting_time2);
-    void* found_rm_item_ptr2 = rm_input_result(scan_room_num2, room_num2, rm_ptr_c);
+    
+    int rm_num_istrue2 = verify_rm_num(scan_room_num2, room_num2);
+    
+    if (!rm_num_istrue2) {
+        return;
+    }
+    
+    void* found_rm_item_ptr2 = OC_find_item_arg(rm_ptr_c, &room_num2, (OC_find_item_arg_fp_t) cmp_room_num_arg);
     
     if(!found_rm_item_ptr1) {
         printf("No room %d!\n", room_num1);
@@ -613,20 +683,34 @@ void load_data(struct Ordered_container* rm_ptr_c, struct Ordered_container* ppl
     FILE *fp = fopen(filename, "r");
     
     if (!fp ){
-        fprintf(stderr, "Can't open file");
+        fprintf(stderr, "Could not open file!\n");
+        return;
     }
     
     int total_person = 0;
-    fscanf(fp, "%d\n", &total_person);
+    int scan = fscanf(fp, "%d\n", &total_person);
+    
+    if (!scan) {
+        printf("Invalid data found in file!\n");
+        return;
+    }
     
     for (; total_person > 0; total_person--) {
         struct Person* new_person = load_Person(fp);
+        if (!new_person) {
+            return;
+        }
         OC_insert(ppl_ptr_c, new_person);
     }
     
     int total_rooms = 0;
-    fscanf(fp, "%d\n", &total_rooms);
+    scan = fscanf(fp, "%d\n", &total_rooms);
     
+    if (!scan) {
+        printf("Invalid data found in file!\n");
+        return;
+    }
+
     for (; total_rooms; total_rooms--) {
         struct Room* new_room = load_Room(fp, ppl_ptr_c);
         OC_insert(rm_ptr_c, new_room);
@@ -640,20 +724,21 @@ void skip_type_ahead(void) {
     scanf("%*[^\n]");
 }
 
-void* rm_input_result(int scanf_result, int scan_input, struct Ordered_container* c_ptr) {
-    if ( (scanf_result > 0) && (scan_input > 0) ) {
-        void* found_item_ptr = OC_find_item_arg(c_ptr, &scan_input, (OC_find_item_arg_fp_t) cmp_room_num_arg);
-        return found_item_ptr;
+int verify_rm_num(int scanf_result, int scan_input) {
+    int result = 0;
+    
+    if ((scanf_result > 0) && (scan_input > 0)) {
+        return -1;
     }
+    
     if ( (scanf_result > 0) && (scan_input < 0) ) {
         printf("Room number is not in range!\n");
-        
     }
     if (!scanf_result) {
         printf("Could not read an integer value!\n");
     }
     skip_type_ahead();
-    return NULL;
+    return result;
     
 }
 
@@ -691,3 +776,8 @@ int loop_into_meeting_dg(void* data_ptr) {
     return OC_empty(meeting_ptr_c);
 }
 
+/* error message */
+void unrecognized_cmd_error(void) {
+    printf("Unrecognized command!\n");
+    skip_type_ahead();
+}
