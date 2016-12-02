@@ -244,6 +244,7 @@ void add_room(struct Ordered_container* rm_ptr_c) {
         return;
     }
     printf("There is already a room with this number!\n");
+    skip_type_ahead();
     
     
 }
@@ -265,7 +266,7 @@ void add_meeting(struct Ordered_container* rm_ptr_c) {
     void* found_rm_item_ptr = OC_find_item_arg(rm_ptr_c, &room_num, (OC_find_item_arg_fp_t) cmp_room_num_arg);
     
     if (!found_rm_item_ptr) {
-        printf("No room found\n");
+        printf("No room with that number!\n");
         return;
     }
     
